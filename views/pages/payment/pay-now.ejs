@@ -1,0 +1,117 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+
+<div class="jumbotron text-center" style="height: 100vh; width:100vw;position:relative;">
+    <div class="" style="  position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: 0%;
+    text-align: center;
+    transform: translate(-50%,-50%);">
+    <img style="margin: 0 auto;" src="/images/icons/payment-placeholder.jpg"> <br>
+        <h1 class="display-3">Please Wait!</h1>
+        <p class="lead"><strong>Connecting to <img src="/images/icons/razorpay.png" style="    display: inline-block;">
+                Payment gateway....</strong></p>
+
+        <p class="lead"><strong>Please do not go back until payment not is done...</strong></p>
+        <hr>
+        <p>
+            Having trouble? <a href="">Go Back</a>
+        </p>
+    </div>
+</div>
+
+
+
+
+
+<button id="rzp-button1-paynow-strict" style="visibility: hidden;">Pay</button>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<% var OrderId=OrderData.id ; %>
+    <script type="text/javascript">
+
+        var options = {
+            "key": "rzp_test_SF1Xn1tfhexJK5",
+            "amount": "<%= OrderData.amount  %>",
+            "currency": "INR",
+            "name": "<%= OrderData.name  %>",
+            "description": "Test Transaction",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/HTTP_logo.svg/1200px-HTTP_logo.svg.png",
+            "order_id": "<%= OrderId  %>", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+            "handler": function (response) {
+                Pay_SuccessHandler(response);
+            },
+            "prefill": {
+                "name": "<%= OrderData.name  %>",
+                "email": "<%= OrderData.email  %>",
+                "contact": "<%= OrderData.mobile  %>"
+            },
+            "notes": {
+                "address": "Razorpay Corporate Office"
+            },
+            "theme": {
+                "color": "#3399cc"
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response) {
+            alert(response.error.code);
+            alert(response.error.description);
+            alert(response.error.source);
+            alert(response.error.step);
+            alert(response.error.reason);
+            alert(response.error.metadata.order_id);
+            alert(response.error.metadata.payment_id);
+        });
+
+
+        setTimeout(() => {
+            rzp1.open();
+        }, 1000);
+
+        function Pay_SuccessHandler(ResponseData) {
+
+            console.log(ResponseData, 'ResponseData');
+
+            let dataSend = {
+                userId: 'test123Id',
+                payment_id:'<%=OrderData.payment_id%>',
+                rzp_payment_id: ResponseData.razorpay_payment_id,
+                rzp_order_id: ResponseData.razorpay_order_id,
+                rzp_signature: ResponseData.razorpay_signature
+            }
+
+            // make payment record------------------------------------------------
+            var request = $.ajax({
+                url: "/save-payment-record",
+                type: "POST",
+                data: dataSend,
+            });
+
+            request.fail(function (jqXHR, textStatus) {
+                alert("Request failed: " + textStatus);
+            });
+
+            let dataSend2 = {
+                bid_id: '<%= OrderData.bidid %>'
+            }
+
+            var request2 = $.ajax({
+                url: "/generate-booking",
+                type: "POST",
+                data: dataSend2,
+            });
+
+            request2.done(function (msg) {
+                window.location.href = "/payment-thankyou";
+            });
+
+            request2.fail(function (jqXHR, textStatus) {
+                alert("Request failed: " + textStatus);
+            });
+
+
+        }
+
+    </script>
