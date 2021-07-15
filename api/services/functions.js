@@ -959,6 +959,7 @@ module.exports.Get_Cities = function () {
          "Koyilandy",
          "Shoranur",
          "Taliparamba",
+         "Thekkady",
          "Thiruvalla",
          "Thiruvananthapuram",
          "Thodupuzha",
@@ -966,6 +967,7 @@ module.exports.Get_Cities = function () {
          "Tirur",
          "Vaikom",
          "Varkala",
+         "Vagamon",
          "Vatakara"
       ],
       "MP": [
