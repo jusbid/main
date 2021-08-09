@@ -154,20 +154,37 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'please provide all keys to add hotel any info' });
         }
 
-        let Check = await HotelOther.findOne({
+        // check if hotel other info exists one, if more than one remove both or one------------------------------------------------
+
+        let Check = await HotelOther.find({
             hotel_id: hotel_id_req,
             type: type,
         });
 
         var DataSet = {}
 
-        if (!Check) {
+        sails.log(Check.length, Check, 'Check.length');
+
+        if (Check.length == 0) {
             DataSet = await HotelOther.create({
                 type: type,
                 content: req.body.content,
                 hotel_id: hotel_id_req
             }).fetch();
-        } else {
+        }
+
+        
+        else if(Check.length > 1){
+
+            await HotelOther.destroy({
+                hotel_id: hotel_id_req,
+                type: type,
+            });
+            return res.send({ responseCode: 201, data: 'Old '+type+' has been removed due to conflict, please add it again' });
+
+        }
+
+        else {
             DataSet = await HotelOther.update({ hotel_id: hotel_id_req, type: type }).set({
                 content: req.body.content
             }).fetch();
@@ -190,16 +207,41 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'please provide all keys to get hotel info' });
         }
 
-        let DataSet_Policy = await HotelOther.findOne({ hotel_id: req.body.hotel_id, type: 'Policy' });
-        let DataSet_Terms = await HotelOther.findOne({ hotel_id: req.body.hotel_id, type: 'Terms' });
-        let DataSet_Refund = await HotelOther.findOne({ hotel_id: req.body.hotel_id, type: 'Refund' });
-        let DataSet_Notice = await HotelOther.findOne({ hotel_id: req.body.hotel_id, type: 'Notice' });
+        let DataSet_Policy = await HotelOther.find({ hotel_id: req.body.hotel_id, type: 'Policy' });
+        let DataSet_Terms = await HotelOther.find({ hotel_id: req.body.hotel_id, type: 'Terms' });
+        let DataSet_Refund = await HotelOther.find({ hotel_id: req.body.hotel_id, type: 'Refund' });
+        let DataSet_Notice = await HotelOther.find({ hotel_id: req.body.hotel_id, type: 'Notice' });
+
+        if(DataSet_Policy.length > 1){
+            await HotelOther.destroy({hotel_id: req.body.hotel_id, type: 'Policy'});
+            //return res.send({ responseCode: 201, data: 'Privacy Policy has been removed due to conflict, please add it again' });
+        }
+
+        if(DataSet_Terms.length > 1){
+            await HotelOther.destroy({hotel_id: req.body.hotel_id, type: 'Terms'});
+            //return res.send({ responseCode: 201, data: 'Terms & Conditions has been removed due to conflict, please add it again' });
+        }
+
+        if(DataSet_Refund.length > 1){
+            await HotelOther.destroy({hotel_id: req.body.hotel_id, type: 'Refund'});
+           // return res.send({ responseCode: 201, data: 'Cancellation & Refund policy has been removed due to conflict, please add it again' });
+        }
+
+        if(DataSet_Notice.length > 1){
+            await HotelOther.destroy({hotel_id: req.body.hotel_id, type: 'Notice'});
+            //return res.send({ responseCode: 201, data: 'Notice has been removed due to conflict, please add it again' });
+        }
+
+        let DataSet_Policy_Obj = await HotelOther.findOne({ hotel_id: req.body.hotel_id, type: 'Policy' });
+        let DataSet_Terms_Obj = await HotelOther.findOne({ hotel_id: req.body.hotel_id, type: 'Terms' });
+        let DataSet_Refund_Obj = await HotelOther.findOne({ hotel_id: req.body.hotel_id, type: 'Refund' });
+        let DataSet_Notice_Obj = await HotelOther.findOne({ hotel_id: req.body.hotel_id, type: 'Notice' });
 
         let ExportData = {
-            policy: DataSet_Policy,
-            terms: DataSet_Terms,
-            refund: DataSet_Refund,
-            notice:DataSet_Notice
+            policy: DataSet_Policy_Obj,
+            terms: DataSet_Terms_Obj,
+            refund: DataSet_Refund_Obj,
+            notice:DataSet_Notice_Obj
         }
 
         if (!ExportData) {
@@ -345,6 +387,37 @@ module.exports = {
             }
 
         });
+    },
+
+
+    Hotelier_Cred_Resend : async (req, res) => {
+
+            let HotEmail = req.body.email;
+
+            if(!HotEmail){
+                return res.send({ responseCode: 201, msg: 'Please provide registered hotelier email address' });
+            }
+
+            let Hotelier = await User.find({ role:5, email:req.body.email });
+            if(Hotelier.length==0){
+                return res.send({ responseCode: 201, msg: 'Email not registered with us to use hotelier portal' });
+            }
+            // send an email to hotel-------------------------------------------------------------------------------------------
+
+            async.forEachOf(Hotelier, function (value, i, callback) {
+
+                sails.log(value, 'hotelierdata-')
+                mailer.HotelierWelcome(value, '');
+                callback();
+            }, function (err) {
+              if(err)  sails.log(err);
+                return res.send({ responseCode: 200, msg: 'Email sent to your registered email address' });
+
+            });
+
+
+
+
     },
 
 

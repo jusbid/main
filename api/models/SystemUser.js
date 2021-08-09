@@ -66,6 +66,11 @@ module.exports = {
         required:true
       },
 
+      role_name:{
+        type:'string',
+        required:false
+      },
+
       department:{
         type:'string',
         defaultsTo:''

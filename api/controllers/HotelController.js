@@ -178,13 +178,6 @@ module.exports = {
     },
 
 
-    Update_Amenity: async (req, res) => {
-
-        functions.Set_Amenities_Array();
-        return res.send({ responseCode: 200, data: {}, msg: 'running service amenities' });
-    },
-
-
     Create_Admin_Hotel: async (req, res) => {
 
         let email_Check = await Hotel.findOne({
@@ -348,15 +341,12 @@ module.exports = {
 
     Get_Room_Details: async (req, res) => {
 
-        sails.log(req.body, 'room details data');
-
         let RoomData = await HotelRooms.findOne({ id: req.body.room_id });
-        sails.log(RoomData, 'room details data');
+
         if (!RoomData) {
             return res.send({ responseCode: 201, msg: 'Room Data Not Found' });
         } else {
             let HotelAmenities = await RoomAmenities.find({ id: RoomData.room_amenities });
-            sails.log(HotelAmenities, 'room details data');
             RoomData.amenities = HotelAmenities;
             return res.send({ responseCode: 200, msg: 'Room Data Fetched', data: RoomData });
         }
@@ -436,7 +426,6 @@ module.exports = {
         });
     },
 
-
     EditHotelRooms_Hotelier: async (req, res) => {
 
         if (!req.body.hotel_id || !req.body.price || !req.body.capacity || !req.body.room_id) {
@@ -506,18 +495,31 @@ module.exports = {
         });
     },
 
+
     // EditHotelRooms_Hotelier: async (req, res) => {
 
     //     if (!req.body.hotel_id || !req.body.price || !req.body.capacity || !req.body.room_id) {
     //         return res.send({ responseCode: 201, msg: 'Please provide all params to create a room' });
     //     }
 
+    //     //-----------------Convert to Array----------------------------------------------
+    //     let room_amenities = [];
+    //     if(req.body.room_amenities){
+    //         let TempAmenities = req.body.room_amenities;
+    //         room_amenities = TempAmenities.split(',');
+    //     }
+    //     let RoomViews = [];
+    //     if(req.body.room_view){
+    //         let TempAmenities = req.body.room_view;
+    //         RoomViews = TempAmenities.split(',');
+    //     }
+
     //     let SaveData = {
     //         hotel_id: req.body.hotel_id,
-    //         room_views: req.body.room_view,
+    //         room_views: RoomViews,
     //         room_type: req.body.room_type,
     //         //   room_type_id: req.body.room_type_id,
-    //         room_amenities: req.body.room_amenities,
+    //         room_amenities: room_amenities,
     //         price: req.body.price,
     //         quantity: req.body.quantity,
     //         capacity: req.body.capacity,
@@ -598,8 +600,7 @@ module.exports = {
             //new key-=----------------------------------------------------------------
             threesixty_view: req.body.threesixty_view,
             commission: req.body.commission,
-            star_rating: req.body.star_rating,
-            is_deleted: req.body.is_deleted
+            star_rating: req.body.star_rating
 
         });
 
@@ -635,32 +636,46 @@ module.exports = {
         })
     },
 
-
     Get_Hotels_Filtered: async (req, res) => {
+
+        let SelectFields = ['id', 'name', 'bdeId','hotelierId', 'email', 'mobile', 'city', 'state', 'status', 'createdAt', 'updatedAt', 'is_deleted'];
 
         let start_date = req.body.start_date;
         let end_date = req.body.end_date;
         let status_collection = req.body.status_collection;
+        sails.log(status_collection, 'status_collection');
         let HotelData = [];
 
+        sails.log(new Date(start_date), 'sd', new Date(end_date) );
+
         if (start_date && end_date) {
-            HotelData = await Hotel.find({status: status_collection,  createdAt: { '>': new Date(start_date), '<': new Date(end_date) }}).sort("createdAt DESC");
+            HotelData = await Hotel.find({ select:SelectFields }).where({  createdAt: { '>': new Date(start_date), '<': new Date(end_date) }, is_deleted:false   }).sort("createdAt DESC");
         } else {
-            HotelData = await Hotel.find({ status: status_collection }).sort("createdAt DESC");
-        }
+            HotelData = await Hotel.find({select:SelectFields}).where({ status: status_collection, is_deleted:false }).sort("createdAt DESC");
+       }
+
+        sails.log(HotelData.length, 'found hotels------------------------');
 
 
         async.forEachOf(HotelData, function (value, i, callback) {
+            sails.log(value.createdAt, '---------------CD');
             HotelData[i].bde_name = '';
             if (value.bdeId && value.bdeId != '') {
+                // Getting Room Counts----------------------------------------------------------------------------------
+                HotelRooms.count({hotel_id : value.id}).exec(function (err, RoomsCounts) {
+                //sails.log(RoomsCounts, value.id, 'rooms----------');
+                HotelData[i].rooms = RoomsCounts;
                 User.findOne({ select: ["userId", "firstname", "lastname"] }).where({ userId: value.bdeId }).exec(function (err, UserData) {
                     if (UserData) {
                         HotelData[i].bde_name = UserData.firstname + ' ' + UserData.lastname;
                     }
                     callback();
-                })
+                });
+            })
 
             } else { callback(); }
+
+            
 
         }, function (err) {
             if (HotelData.length == 0) {
@@ -672,76 +687,10 @@ module.exports = {
         })
 
     },
-
-
-    Get_Hotels_For_Admin: async (req, res) => {
-
-        let SelectFields = ['id', 'name', 'bdeId', 'email', 'mobile', 'city', 'state', 'status', 'createdAt', 'updatedAt'];
-
-        let userId = req.body.userId;
-        var is_systemuser = true;
-
-        if (!userId && !roleId) {
-            return res.send({ responseCode: 201, data: {}, msg: 'Please provide required parameters' });
-        }
-
-        var UserData;
-        UserData = await SystemUser.findOne({ userId: userId });
-        if (!UserData) {
-            UserData = await User.findOne({ userId: userId });
-            is_systemuser = false;
-        }
-
-        let roleId = UserData.role;
-        var HotelData;
-
-        if (is_systemuser) {
-
-            if (roleId == 0 || roleId == '0') {
-                HotelData = await Hotel.find({ is_deleted: false }).sort("createdAt DESC");
-            }
-            else if (roleId == 1 || roleId == '1') {
-                //-----add selected states requested over zones------------------
-                HotelData = await Hotel.find({ select: SelectFields }).where({ state: UserData.zone, is_deleted: false }).sort("createdAt DESC");
-            }
-            else if (roleId == 2 || roleId == '2') {
-                HotelData = await Hotel.find({ select: SelectFields }).where({ state: UserData.state, is_deleted: false }).sort("createdAt DESC");
-            }
-            else if (roleId == 3 || roleId == '3') {
-                HotelData = await Hotel.find({ select: SelectFields }).where({ state: UserData.state, city: UserData.city, is_deleted: false }).sort("createdAt DESC");
-            }
-
-        } else {
-            HotelData = await Hotel.find({ select: SelectFields }).sort("createdAt DESC");
-        }
-
-        async.forEachOf(HotelData, function (value, i, callback) {
-            HotelData[i].bde_name = '';
-            if (value.bdeId && value.bdeId != '') {
-                User.findOne({ select: ["userId", "firstname", "lastname"] }).where({ userId: value.bdeId }).exec(function (err, UserData) {
-                    if (UserData) {
-                        HotelData[i].bde_name = UserData.firstname + ' ' + UserData.lastname;
-                    }
-                    callback();
-                })
-
-            } else { callback(); }
-
-        }, function (err) {
-            if (err) { sails.log(err); }
-            if (HotelData.length == 0) {
-                return res.send({ responseCode: 201, data: {}, msg: 'No hotel found using this criteria' });
-            }
-            else {
-                return res.send({ responseCode: 200, data: HotelData });
-            }
-        })
-    },
-
 
     Get_Hotels_Admin_Paginated: async (req, res) => {
 
-        let SelectFields = ['id', 'name', 'bdeId', 'email', 'mobile', 'city', 'state', 'status', 'createdAt', 'updatedAt'];
+        let SelectFields = ['id', 'name', 'bdeId', 'email', 'mobile', 'city', 'state', 'status', 'createdAt', 'updatedAt', 'is_deleted'];
 
         let userId = req.body.userId;
         let status;
@@ -772,7 +721,7 @@ module.exports = {
 
             if (roleId == 0 || roleId == '0') {
                 sails.log('in admin');
-                HotelData = await Hotel.find({ is_deleted: false, status:status}).limit(limit).skip(TempPage).sort("createdAt DESC");
+                HotelData = await Hotel.find({ select: SelectFields }).where({ is_deleted: false, status:status }).limit(limit).skip(TempPage).sort("createdAt DESC");
             }
             else if (roleId == 1 || roleId == '1') {
                 //-----add selected states requested over zones------------------
@@ -784,10 +733,84 @@ module.exports = {
             else if (roleId == 3 || roleId == '3') {
                 HotelData = await Hotel.find({ select: SelectFields }).where({ state: UserData.state, city: UserData.city, is_deleted: false }).sort("createdAt DESC");
             }
+            else if (roleId == 4 || roleId == '4'){
+                HotelData = await Hotel.find({ select: SelectFields }).where({ is_deleted: false, status:status }).limit(limit).skip(TempPage).sort("createdAt DESC");
+
+            }
 
         } else {
             HotelData = await Hotel.find({ select: SelectFields }).sort("createdAt DESC");
             //test
+        }
+
+        // async.forEachOf(HotelData, function (value, i, callback) {
+        //     HotelData[i].bde_name = '';
+        //     if (value.bdeId && value.bdeId != '') {
+        //         User.findOne({ select: ["userId", "firstname", "lastname"] }).where({ userId: value.bdeId }).exec(function (err, UserData) {
+        //             if (UserData) {
+        //                 HotelData[i].bde_name = UserData.firstname + ' ' + UserData.lastname;
+        //             }
+        //             callback();
+        //         })
+
+        //     } else { callback(); }
+
+        // }, function (err) {
+        //     if (err) { sails.log(err); }
+        //     if (HotelData.length == 0) {
+        //         return res.send({ responseCode: 201, data: {}, msg: 'No hotel found using this criteria' });
+        //     }
+        //     else {
+        //         return res.send({ responseCode: 200, data: HotelData });
+        //     }
+        // })
+
+        if (HotelData.length == 0) {
+            return res.send({ responseCode: 201, data: {}, msg: 'No hotel found using this criteria' });
+        }
+        else {
+            return res.send({ responseCode: 200, data: HotelData });
+        }
+    },
+
+
+    Get_Hotels_For_Admin: async (req, res) => {
+
+        let userId = req.body.userId;
+        var is_systemuser = true;
+
+        if (!userId && !roleId) {
+            return res.send({ responseCode: 201, data: {}, msg: 'Please provide required parameters' });
+        }
+
+        var UserData;
+        UserData = await SystemUser.findOne({ userId: userId });
+        if (!UserData) {
+            UserData = await User.findOne({ userId: userId });
+            is_systemuser = false;
+        }
+
+        let roleId = UserData.role;
+        var HotelData;
+
+        if (is_systemuser) {
+
+            if (roleId == 0 || roleId == '0') {
+                HotelData = await Hotel.find({ is_deleted: false }).sort("createdAt DESC");
+            }
+            else if (roleId == 1 || roleId == '1') {
+                //-----add selected states requested over zones------------------
+                HotelData = await Hotel.find({ state: UserData.zone, is_deleted: false }).sort("createdAt DESC");
+            }
+            else if (roleId == 2 || roleId == '2') {
+                HotelData = await Hotel.find({ state: UserData.state, is_deleted: false }).sort("createdAt DESC");
+            }
+            else if (roleId == 3 || roleId == '3') {
+                HotelData = await Hotel.find({ state: UserData.state, city: UserData.city, is_deleted: false }).sort("createdAt DESC");
+            }
+
+        } else {
+            HotelData = await Hotel.find({}).sort("createdAt DESC");
         }
 
         async.forEachOf(HotelData, function (value, i, callback) {
@@ -1017,7 +1040,7 @@ module.exports = {
 
     Get_BDE_Hotels: async (req, res) => {
 
-        var fieldsSelect = ['name', 'plot_no', 'area', 'street', 'address', 'landmark', 'city', 'state', 'country', 'rating', 'landline', 'mobile', 'bdeId', 'id', 'status', 'image', 'statusNote'];
+        var fieldsSelect = ['name', 'plot_no', 'area', 'street', 'address', 'landmark', 'city', 'state', 'country', 'rating', 'landline', 'mobile', 'bdeId', 'id', 'status', 'image'];
 
         var HotelData = [];
 
@@ -1063,19 +1086,13 @@ module.exports = {
 
             var HotelDataApproved = HotelData.filter(function (itm) { return itm.status == "Approved" || itm.status == "Accepted"; });
 
-            var HotelDataAccepted = HotelData.filter(function (itm) { return itm.status == "Accepted"; });
-
             var HotelDataPending = HotelData.filter(function (itm) { return itm.status == "Processing"; });
-
-            var HotelDataOnHold = HotelData.filter(function (itm) { return itm.status == "OnHold"; });
-
-            var HotelDataRejected = HotelData.filter(function (itm) { return itm.status == "Rejected" || itm.status == "Declined"; });
 
             if (HotelDataPending.length == 0 && HotelDataApproved.length == 0) {
                 return res.send({ responseCode: 201, data: {}, msg: 'No hotel found using this criteria' });
             }
             else {
-                return res.send({ responseCode: 200, approved: HotelDataApproved, accepted: HotelDataAccepted, pending: HotelDataPending, hold: HotelDataOnHold, rejected: HotelDataRejected });
+                return res.send({ responseCode: 200, approved: HotelDataApproved, pending: HotelDataPending });
             }
 
         });
@@ -1237,15 +1254,26 @@ module.exports = {
         }
 
         var HotelCheckStatus = await Hotel.findOne({ id: req.body.hotel_id, name: req.body.name });
+
         var HotelData = await Hotel.updateOne({ id: req.body.hotel_id, name: req.body.name }).set({ status: req.body.status, statusNote: req.body.statusNote });
+
         let UserCounts = await User.count();
 
         let save_userid = HotelCheckStatus.name.substring(0, 3) + '' + (parseInt(UserCounts) + 1);
-        save_userid = save_userid.replace(/\s/g, 'j');
+
         let save_password = HotelCheckStatus.name.substring(0, 3) + '' + parseInt(Math.random() * 1000, 10) + '' + functions.Get_DateSeq();
-        save_password = save_password.replace(/\s/g, 'j');
+
         // check if hotelier user is created in system--------------------------------------------------------------------------
         var FindHotelier = await User.findOne({}).where({ hotel_id: req.body.hotel_id, role: 5 });
+
+        if(save_userid){
+            save_userid = save_userid.replace(/ /g,"j")
+        }
+
+        if(save_password){
+            save_password = save_password.replace(/ /g,"j")
+        }
+
         if (!FindHotelier && req.body.status == "Accepted") {
             // Create hotelier user-------------------------------------------------------------------------------------------------
             let Hotel_Mobile = HotelCheckStatus.manager_mobile;
@@ -1263,7 +1291,9 @@ module.exports = {
             }).fetch();
 
             if (UserCreatedData) await Hotel.updateOne({ id: req.body.hotel_id }).set({ hotelierId: save_userid });
+
             // send an email to hotel-------------------------------------------------------------------------------------------
+
             NotificationsFunctions.HotelApprovalNotification_BDM_BDE(HotelCheckStatus.bdeId, HotelCheckStatus.name);
             mailer.HotelierWelcome(UserCreatedData, HotelData.image);
             mailer.BDE_Hotel_Approval(HotelData);
@@ -1275,6 +1305,7 @@ module.exports = {
                 //   mailer.BDE_Hotel_Approval(HotelData);
             }
             else if (req.body.status == "Accepted" || req.body.status == "OnHold") {
+
             }
         }
 
@@ -1311,14 +1342,9 @@ module.exports = {
 
     Restricted_Remove_Hotel: async (req, res) => {
 
-        if (!req.body.userId || !req.body.password || !req.body.hotel_id) {
-            return res.send({ responseCode: 201, msg: 'Please provide required parameters' });
+        if (!req.body.hotel_id) {
+            return res.send({ responseCode: 201, msg: 'Please provide hotel id' });
         }
-
-        let SystemUserGet = await SystemUser.findOne({ userId: req.body.userId, password: req.body.password });
-
-        if (!SystemUserGet) { return res.send({ responseCode: 201, msg: 'You do not have permissions to remove this hotel' }); }
-
 
         var CheckHotelStatus = await Hotel.destroyOne({ id: req.body.hotel_id });
 
@@ -1629,9 +1655,6 @@ module.exports = {
 
 
     Restricted_Delete_Hotel: async (req, res) => {
-        if (!req.body.hotel_id) {
-            return res.send({ responseCode: 201, msg: 'please provide all required parameter' });
-        }
         let HotelRemoved = await Hotel.destroyOne({ id: req.body.hotel_id });
 
         if (!HotelRemoved) {
@@ -1713,17 +1736,9 @@ module.exports = {
 
     Raise_Hotel_Issue: async (req, res) => {
 
-        if (!req.body.hotel_id || !req.body.userId || !req.body.booking_id) {
-            return res.send({ responseCode: 201, msg: 'Please provide all required parameters' });
+        if (!req.body.hotel_id) {
+            return res.send({ responseCode: 201, msg: 'hotel id not found' });
         }
-
-        sails.log(req.body);
-
-        let checkComplain = await Complaints.findOne({ hotel_id: req.body.hotel_id, userId: req.body.userId, booking_id: req.body.booking_id });
-
-        // if(checkComplain){
-        //     return res.send({ responseCode: 201, msg: 'Complaint already exists against this booking' });
-        // }
 
         let HotelData = await Hotel.findOne({ id: req.body.hotel_id, is_deleted: false });
 
@@ -1816,13 +1831,6 @@ module.exports = {
         let complaintsData = await Complaints.find({}).sort('createdAt DESC');
 
         return res.send({ responseCode: 200, msg: 'complaint fetched', data: complaintsData });
-    },
-
-    Set_Hotel_Commissions: async (req, res) => {
-
-        let commissionData = await Hotel.update({  }).set({ commission: 18 });
-        return res.send({ responseCode: 200, msg: 'commissionData fetched', data: commissionData });
-
     }
 
 

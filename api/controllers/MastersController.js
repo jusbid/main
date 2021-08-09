@@ -25,7 +25,7 @@ module.exports = {
         osData.freemem = os.freemem();
         osData.totalmem = os.totalmem();
         osData.type = os.type();
-        osData.version = os.version();
+        osData.version = '1';
         osData.platform = os.platform();
         osData.arch = os.arch();
         osData.CPU = os.cpus();
@@ -44,6 +44,50 @@ module.exports = {
         } else {
             return res.send({ responseCode: 201, msg: 'Unable to fetch UpdatedUser' });
         }
+
+    },
+
+    Update_hotel_field: async (req, res) => {
+
+        var UpdatedHotelImages = await HotelImages.update({}).set({is_active:true});
+
+        if (UpdatedHotelImages) {
+            return res.send({ responseCode: 200, msg: 'UpdatedHotelImages data updated'});
+        } else {
+            return res.send({ responseCode: 201, msg: 'Unable to Update HotelImages' });
+        }
+
+    },
+
+    Update_hotel_createdate: async (req, res) => {
+
+        var Hotels = await Hotel.find();   
+
+        async.forEachOf(Hotels, function (value, i, callback) {
+
+            let CreateDate = value.createdAt;
+
+            let ParsedCD = new Date(CreateDate);
+
+            Hotel.update({id:value.id}).set({createdAt:ParsedCD}).exec(function (err, HotelUpdate) { 
+
+            //sails.log(ParsedCD, 'ParsedCD');
+
+           });
+
+            
+            callback();
+
+
+        }, function (err) {
+            if (Hotels) {
+                return res.send({ responseCode: 200, msg: 'Hotels data updated'});
+            } else {
+                return res.send({ responseCode: 201, msg: 'Unable to Update Hotels' });
+            }
+        });
+
+       
 
     },
 

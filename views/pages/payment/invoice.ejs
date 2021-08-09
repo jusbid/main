@@ -31,7 +31,7 @@
                         </h2>
                         <div>4-C, Hotel Udaivillas Road, Haridas ji ki Magri, Udaipur, Rajasthan, India 313004</div>
                         <div>+91 9983301799</div>
-                        <div>sails@jusbid.in</div>
+                        <div>Sales@rudrohom.com</div>
                     </div>
                 </div>
             </header>
@@ -88,6 +88,7 @@
 
                     <tfoot>
                        
+
                         <tr>
                             <td colspan="2"></td>
                             <td colspan="2"><span style="color: red;">JUSBID</span> DISCOUNT APPLIED</td>
@@ -106,9 +107,9 @@
                         <% var BookedPrice = BookingData.price; %>
                         <tr>
                             <td colspan="2"></td>
-                            <%if (BookedPrice <= 999 ) {  %>  <td colspan="2">+GST 0%</td>  <td colspan="2">₹0/- </td>  <% } %>
-                            <%if (BookedPrice >= 1000 &&  BookedPrice <= 7499) {  %>  <td colspan="2">+GST 12%</td> <td colspan="2">₹<% TaxApplied = ((12/ 100) * BookedPrice).toFixed(2)  %><%= TaxApplied  %>/-</td> <% } %>
-                            <%if (BookedPrice >= 7500) {  %>  <td colspan="2">+GST 18%</td>  <td colspan="2">₹<% TaxApplied = ((18/ 100) * BookedPrice).toFixed(2)  %><%= TaxApplied  %>/- </td> <% } %>
+                            <%if (BookedPrice <= 999 ) {  %> <td colspan="2">+GST 0%</td>  <td colspan="2">₹0/- </td>    <% } %>
+                            <%if (BookedPrice >= 1000 &&  BookedPrice <= 7499) {  %> <td colspan="2">+GST 12%</td>  <td colspan="2">₹<% TaxApplied = ((12/ 100) * BookedPrice).toFixed(2)  %><%= TaxApplied  %>/-</td>  <% } %>
+                            <%if (BookedPrice >= 7500) {  %> <td colspan="2">+GST 18%</td>  <td colspan="2">₹<% TaxApplied = ((18/ 100) * BookedPrice).toFixed(2)  %><%= TaxApplied  %>/- </td>   <% } %>
                         </tr>
                         <tr>
                             <td colspan="2"></td>

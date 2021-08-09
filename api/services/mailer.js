@@ -124,6 +124,8 @@ module.exports.forgotPassword = function (obj) {
 
 module.exports.HotelAdded = function (hoteldata) {
 
+   
+
     readHTMLFile('api/emailTemplates/hotelierWelcome/created.ejs', function (err, html) {
         var template = handlebars.compile(html);
         var replacements = {
@@ -150,6 +152,7 @@ module.exports.HotelAdded = function (hoteldata) {
 
 
 module.exports.HotelierWelcome = function (obj, hotel_image) {
+    sails.log(obj, 'hoteldata------');
     sails.log('sending welcome mail', obj);
     var full_image_path = "https://www.transindiaholidays.com/Areas/Blog/UploadImages/Id_5c1a0aa3-7794-410a-952f-17ad8dc95c2c.jpg";
     if (hotel_image) {

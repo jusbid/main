@@ -130,14 +130,6 @@ module.exports = {
         room_status:{
             type: 'string',
             defaultsTo: "checkin_pending"
-        },
-        room_checkin_time:{
-            type: 'string',
-            defaultsTo: ""
-        },
-        room_checkout_time:{
-            type: 'string',
-            defaultsTo: ""
         }
     }
 }

@@ -61,12 +61,6 @@ module.exports = {
             type: 'number',
             required: false
         },
-
-        sold_out: {
-            type: 'boolean',
-            defaultsTo: false
-        },
-
         is_active: {
             type: 'boolean',
             defaultsTo: true

@@ -5,7 +5,9 @@ module.exports = {
 
         sails.log(req.body, 'save bank details data');
 
-        let CheckDetails = await BankDetails.findOne({userId:req.body.userId})
+        let CheckDetails = await BankDetails.findOne({userId:req.body.userId});
+
+        sails.log(CheckDetails, 'CheckDetails');
 
         if(CheckDetails){
             var UpdatedBankDetails = await BankDetails.update({userId: req.body.userId}).set({

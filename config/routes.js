@@ -92,6 +92,8 @@ module.exports.routes = {
 
   'POST /get-hotels-byid': { controller: 'HotelController', action: 'Get_Hotels_ById' },
   'POST /update-hotel-status': { controller: 'HotelController', action: 'Update_Hotel_Status' },
+ 
+  
   'POST /remove-hotel': { controller: 'HotelController', action: 'Remove_Hotel' },
   'GET /deactivate-hotel': { controller: 'HotelController', action: 'Change_Hotel_Status' },
   'POST /hotel-image-upload': { controller: 'HotelController', action: 'Hotel_Images_Upload' },
@@ -157,6 +159,9 @@ module.exports.routes = {
   'POST /save-query': { controller: 'MastersController', action: 'Save_Query' },
   'POST /enquiries': { controller: 'MastersController', action: 'Get_Queries' },
   'GET /update-user-field': { controller: 'MastersController', action: 'Update_user_field' },
+  'GET /update-hotel-field': { controller: 'MastersController', action: 'Update_hotel_field' },
+  'GET /update-hotel-createdate': { controller: 'MastersController', action: 'Update_hotel_createdate' },
+  
 
   //-------------------Admin Dashboard-------------------------------------------------------------------
   'GET /get-dashboard-counts': { controller: 'AdminController', action: 'Get_Dashboard_Counts' },
@@ -204,6 +209,8 @@ module.exports.routes = {
   'POST /save-hotelier-documents': { controller: 'HotelierController', action: 'Hotelier_Documents_Upload' },
   'POST /get-my-documents': { controller: 'HotelierController', action: 'Get_My_Documents' },
   'POST /remove-my-documents': { controller: 'HotelierController', action: 'Remove_My_Documents' },
+  'POST /hotelier-resend-email': { controller: 'HotelierController', action: 'Hotelier_Cred_Resend' },
+  
 
   //----------------------------------Masters----------------------------------------------------------------------
 

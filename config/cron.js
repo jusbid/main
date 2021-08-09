@@ -5,7 +5,7 @@ module.exports.cron = {
         onTick: function () {
             functions.Set_Missed_Bids();
             functions.Set_User_Missed_Bids();
-           // sails.log('Running Missed SLA function CRON service');
+            sails.log('Running Missed SLA function CRON service');
         }
     },
 
@@ -13,8 +13,8 @@ module.exports.cron = {
     RemoveOlderNotification: {
         schedule: '00 00 12 * * 0-6',
         onTick: function () {
-            functions.RemoveOlderNotification();
-            //sails.log('Running Missed SLA function CRON service');
+            functions.RemoveOlderNotificationByTime();
+            sails.log('Running Missed SLA function CRON service');
         }
     },
 
@@ -22,7 +22,7 @@ module.exports.cron = {
         schedule: '*/90 * * * * *',
         onTick: function () {
             functions.Send_Bid_Notification_Hotelier();
-            //sails.log('Running Missed SLA function CRON service');
+            sails.log('Running Missed SLA function CRON service');
         }
     },
 
@@ -30,25 +30,25 @@ module.exports.cron = {
         schedule: '*/80 * * * * *',
         onTick: function () {
             functions.Send_Bid_Notification_Hotelier2();
-            //sails.log('Running Missed SLA function CRON service 2');
+            sails.log('Running Missed SLA function CRON service 2');
         }
     },
 
-    ScheduleBackup: {
-        schedule: '59 23 * * *',
-        onTick: function () {
-            functions.Backup_MongoDB();
-            //sails.log('Running Backup Service');
-        }
+    // ScheduleBackup: {
+    //     schedule: '59 23 * * *',
+    //     onTick: function () {
+    //         functions.Backup_MongoDB();
+    //         sails.log('Running Backup Service');
+    //     }
         
-    },
+    // },
 
     Set_Past_Bookings: {
         schedule: '*/10 * * * * *',
         onTick: function () {
             functions.Set_Past_Bookings();
             functions.Set_Current_Bookings();
-            //sails.log('Running Past/Current Service');
+            sails.log('Running Past/Current Service');
         }
     },
 
@@ -58,7 +58,7 @@ module.exports.cron = {
             functions.RemoveOlderNotificationByTime();
             functions.RemoveOlderNotificationByStatus();
         }
-    },
+    }
 
     // SendPush_Single_Test_1:{
     //     schedule: '*/3 * * * * *',
@@ -72,13 +72,10 @@ module.exports.cron = {
     // SendPush_Single: {
     //     schedule: '*/5 * * * * *',
     //     onTick: function () {
-    //         NotificationsFunctions.Send_Single_Hotelier_Test('test new hotelier notification', 'test new hotelier notification', 'Hol48');
+    //         NotificationsFunctions.SendPush_Single('test', 'test', 'NePa1');
     //         sails.log('Running Notification');
     //     }
     // },
-
-
-    
 
 
     

@@ -140,6 +140,10 @@ module.exports = {
         if (!CreatedBid) {
             return res.send({ responseCode: 201, msg: 'Bid not saved', err: err });
         } else {
+            let R_Bid_SMS ='Hello '+firstname+', Your Bid for Hotel '+hotel_name+' of '+bid_price+' has been rejected please make changes and rebid. Thank you Team Jusbid';
+           // let R_Bid_SMS = 'Bid for reserving hotel room on ' + CreatedBid.hotel_name + ' has been placed successfully, please wait for hotelier approval';
+         //   NotificationsFunctions.SendPush_Single('Bid Rejected', R_Bid_SMS, userId);
+
             return res.send({ responseCode: 200, msg: 'Bid Saved successfully', data: CreatedBid });
         }
 
@@ -474,7 +478,16 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'Bid not updated' });
         } else {
             let sms_msg = "Your Bid "+BidsUpdated.series+" for Hotel "+BidsUpdated.hotel_name+" of "+BidsUpdated.price+" has been Accepted for date "+BidsUpdated.arrival_date+", Days "+BidsUpdated.days+", Please Hurry up to Grab the best deal and book now!";
-            if(UserData)functions2.Send_Single_SMS(UserData.mobile, sms_msg);
+            if(UserData){
+                if(status == "Approved"){
+                    functions2.Send_Single_SMS(UserData.mobile, sms_msg);
+                }
+                else if(status == "Rejected"){
+                    let R_Bid_SMS ='Hello '+BidsUpdated.firstname+', Your Bid for Hotel '+BidsUpdated.hotel_name+' of '+BidsUpdated.price+' has been rejected please try rebid. Thank you Team Jusbid';
+                    sails.log(R_Bid_SMS, 'R_Bid_SMS-------------');
+                    functions2.Send_Single_SMS(UserData.mobile, R_Bid_SMS);
+                }
+            }
             NotificationsFunctions.Update_Bid_Notifications(BidsUpdated);
             if (status == "Approved") { mailer.Approved_Bidding(BidsUpdated); }
             NotificationsFunctions.SendPush_Single('Bid Updated!', 'Bid for reserving hotel room on ' + BidsUpdated.hotel_name + ' have been updated with current status as ' + req.body.status + ', please check bid listing for further instructions', BidsUpdated.userId);

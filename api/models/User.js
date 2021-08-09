@@ -121,11 +121,6 @@ module.exports = {
       required:false
     },
 
-    child_bdm:{
-      type:'json',
-      defaultsTo:[]
-    },
-
     parent_bdm:{
       type:'string',
       required:false
@@ -202,8 +197,8 @@ module.exports = {
     },
 
     lastSeenAt: {
-      type: 'number',
-      defaultsTo: 0,
+      type: 'string',
+      defaultsTo: "",
     },
 
     status:{

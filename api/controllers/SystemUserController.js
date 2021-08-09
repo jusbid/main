@@ -30,14 +30,14 @@ module.exports = {
     Create_Admin: async (req, res) => {
 
 
-        let EmailCheck = await SystemUser.findOne({ userId: "jusbid" });
+        let EmailCheck = await SystemUser.findOne({ userId: "jradmin" });
         if (EmailCheck) { return res.send({ responseCode: 201, msg: 'User with this email already exists' }); }
 
         let UserData = await SystemUser.create({
-            password: "jusbid",
-            userId: "jusbid",
-            email: "it@rudrohom.com",
-            name: "Rudrohom Admin",
+            password: "jradmin2021",
+            userId: "jradmin",
+            email: "info@jusbid.in",
+            name: "Rudrohom Admin 2",
             mobile: "123456789",
             role: "0",
         }).fetch();
@@ -232,6 +232,8 @@ module.exports = {
         var UserResultData;
         if (is_systemuser) {
 
+            sails.log(UserData, 'UserData');
+
             if (roleId == 0 || roleId == '0') {
                 UserResultData = await User.find({ role: role, is_deleted: false }).sort('createdAt DESC');
             }
@@ -246,9 +248,14 @@ module.exports = {
                 sails.log('in role 3', UserData.state, UserData.city)
                 UserResultData = await User.find({ role: role, assigned_city: UserData.city, assigned_state: UserData.state, is_deleted: false }).sort('createdAt DESC');
             }
+            else if(roleId == 4 || roleId == '4'){
+                UserResultData = await User.find({ role: role, is_deleted: false }).sort('createdAt DESC');
+            }
+
+            sails.log(roleId, 'roleId');
 
         } else {
-            UserResultData = await User.find({ role: roleId, is_deleted: false }).sort('createdAt DESC');
+            UserResultData = await User.find({ role: role, is_deleted: false }).sort('createdAt DESC');
         }
 
         if (!UserData) {
