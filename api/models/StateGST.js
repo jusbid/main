@@ -1,6 +1,11 @@
 module.exports = {
 
     attributes: {
+
+        gst_code:{
+            type: "number",
+            required:true   
+        },
   
         gst_state:{
             type: "string",

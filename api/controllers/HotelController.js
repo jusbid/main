@@ -178,6 +178,172 @@ module.exports = {
     },
 
 
+    OnBoard_Hotel: async (req, res) => {
+
+            if (!req.body.name || !req.body.category || !req.body.city ||  !req.body.mobile) {
+                return res.send({ responseCode: 201, data: {}, msg: 'Please provide required information..' });
+            }
+
+            if (req.body.hotel_views) {
+                sails.log(req.body.hotel_views, 'req.body.hotel_views');
+                var hotel_views = req.body.hotel_views;
+                // if(!Array.isArray(hotel_views)){
+                //     return res.send({ responseCode: 201, data: {}, msg: 'Hotel views is not under correct format' });
+                // }
+            }
+
+            if (req.body.seasonal_months) {
+                var hotel_months = req.body.seasonal_months;
+                // if(!Array.isArray(hotel_months)){
+                //     return res.send({ responseCode: 201, data: {}, msg: 'Hotel seasonal months is not under correct format' });
+                // }
+            }
+
+            let HotelName = req.body.name;
+            HotelName = HotelName.trim();
+
+
+            let CheckVerify = await Hotel.findOne({
+                email: req.body.email, name: HotelName, address: req.body.address
+            });
+
+            let email_Check = await Hotel.findOne({
+                email: req.body.email, name: HotelName
+            });
+
+            if (CheckVerify) {
+                return res.send({ responseCode: 201, data: {}, msg: 'Hotel with this information already exists..' });
+            }
+
+            if(email_Check){
+                return res.send({ responseCode: 201, data: {}, msg: 'Hotel with this information already exists..' });
+            }
+
+            sails.log(email_Check, 'email_Check', req.body.email, HotelName);
+
+            if (!req.body.bdeId && !req.body.name && !req.body.city) {
+                return res.send({ responseCode: 201, data: {}, msg: 'Please provide all mandatory details to add a hotel' });
+            }
+
+            let HotelData = await Hotel.create({
+
+                bdeId: req.body.bdeId,
+                hotelierId: req.body.hotelierId,
+                name: HotelName,
+                view_name: req.body.view_name,
+                category: req.body.category,
+                rating: req.body.rating,
+                hotel_amenities: [],
+                downfall: req.body.downfall,
+                latitude: req.body.latitude,
+                longitude: req.body.longitude,
+                plot_no: req.body.plot_no,
+                street: req.body.street,
+                area: req.body.area,
+                address: req.body.address,
+                landmark: req.body.landmark,
+                city: req.body.city,
+                state: req.body.state,
+                zip: req.body.zip,
+                country: req.body.country,
+                occupancy: req.body.occupancy,
+                landline: req.body.landline,
+                mobile: req.body.mobile,
+                email: req.body.email,
+                owner_name: req.body.owner_name,
+                owner_mobile: req.body.owner_mobile,
+                owner_email: req.body.owner_email,
+                manager_name: req.body.manager_name,
+                manager_mobile: req.body.manager_mobile,
+                manager_email: req.body.manager_email,
+                exec_name: req.body.exec_name,
+                exec_mobile: req.body.exec_mobile,
+                exec_email: req.body.exec_email,
+                fax: req.body.fax,
+                manager_email: req.body.manager_email,
+                // new keys----------------------------
+                hotel_views: req.body.hotel_views,
+                seasonal_months: req.body.seasonal_months,
+                star_rating: req.body.star_rating
+
+            }).fetch();
+
+            sails.log('hotel added succesfuly', HotelData);
+
+
+        //Upload Hotel Image------------------------------------------------------------------------------------------------------
+
+        let Hotel_ID = HotelData.id;
+
+        if (!Hotel_ID) {
+            return res.send({ responseCode: 201, msg: 'Provide hotel ID to add an image' });
+        }
+
+        var ImageName = req.body.imageName;
+
+        if (!ImageName) {
+            return res.send({ responseCode: 201, msg: 'Please provide image name' });
+        }
+
+        var FilePrefixPath = functions.Get_FileUpload_Path();
+
+        var hotel_image_link = '';
+
+        if (!fs.existsSync('assets/images/hotel' + FilePrefixPath)) { fs.mkdir('assets/images/hotel' + FilePrefixPath, function (err, result) { }); }
+
+        req.file('image').upload({
+            //    maxBytes: 100000000000,
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/hotel' + FilePrefixPath)
+        }, function (err, uploadedFiles1) {
+
+            if (!uploadedFiles1) {
+                return res.send({ responseCode: 201, msg: 'Please provide hotel image file' });
+            }
+
+            if (uploadedFiles1.length == 0) {
+                return res.send({ responseCode: 201, msg: 'Please provide hotel image file' });
+            }
+
+            if (err) return res.serverError(err);
+
+            hotel_image_link = functions.Get_Excluded_Path(uploadedFiles1[0].fd);
+
+            // Generate Thumbnail Image--------------------------------------------------
+
+            functions.GenerateMinifiedImg(hotel_image_link, 50);
+
+            //------save hotel image path--------------------------------------------------------------------
+
+            let Min_Path = functions.Get_MinPath(hotel_image_link);
+
+            functions.Set_Primary_Image(Hotel_ID, Min_Path, ImageName);
+
+            //sails.log(Hotel_ID, ImageName, hotel_image_link, Min_Path);
+
+            HotelImages.create({
+
+                hotel_id: Hotel_ID,
+                name: ImageName,
+                path: hotel_image_link,
+                min_path: Min_Path
+            }).fetch().exec(function (err, result) {
+
+               if(err) sails.log(err, "err");
+                if (result) {
+                    mailer.HotelAdded(HotelData);
+                    NotificationsFunctions.HotelCreationNotification_BDM_BDE(req.body.bdeId, req.body.name);
+                    mailer.Hotel_Add_Notification_BDM_with_Hotel(HotelData, req.body.bdeId);
+                    return res.send({ responseCode: 200, msg: 'Hotel created successfully..' });
+                } else {
+                    return res.send({ responseCode: 201, msg: 'error while saving hotel data & image, please try again..' });
+                }
+            })
+
+        });
+
+    },
+
+
     Create_Admin_Hotel: async (req, res) => {
 
         let email_Check = await Hotel.findOne({
@@ -353,6 +519,8 @@ module.exports = {
     },
 
     CreateHotelRooms_Hotelier: async (req, res) => {
+
+        sails.log(req.body, 'room body');
 
         if (!req.body.hotel_id || !req.body.price || !req.body.capacity) {
             return res.send({ responseCode: 201, msg: 'Please provide all params to create a room' });
@@ -1667,7 +1835,8 @@ module.exports = {
     },
 
     Get_Hotel_AddOn: async (req, res) => {
-        let AddOnCreated = await AddOn.find({ hotel_id: req.body.hotel_id }).sort('createdAt DESC');
+
+        let AddOnCreated = await AddOn.find({ hotel_id: req.body.hotel_id, is_active:true }).sort('createdAt DESC');
 
         return res.send({ responseCode: 200, data: AddOnCreated });
 
@@ -1675,6 +1844,16 @@ module.exports = {
 
 
     Add_Hotel_AddOn: async (req, res) => {
+
+        if(!req.body.hotel_id && !req.body.name && !req.body.price){
+            return res.send({ responseCode: 201, msg: 'Please provide required parameters..' });
+        }
+
+        let checkDup = await AddOn.findOne({hotel_id: req.body.hotel_id, name : req.body.name});
+
+        if(checkDup){
+            return res.send({ responseCode: 201, msg: 'AddOn already exists with this name..' });
+        }
 
 
         let AddOnCreated = await AddOn.create({
@@ -1696,7 +1875,11 @@ module.exports = {
 
     Update_Hotel_AddOn: async (req, res) => {
 
-        let AddOnCreated = await AddOn.update({ hotel_id: req.body.hotel_id, id: req.body.addon_id }).set({
+        if(!req.body.hotel_id && !req.body.addon_id){
+            return res.send({ responseCode: 201, msg: 'Please provide required parameters..' });
+        }
+
+        let AddOnCreated = await AddOn.updateOne({  id: req.body.addon_id }).set({
             name: req.body.name,
             description: req.body.description,
             price: req.body.price

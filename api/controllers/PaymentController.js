@@ -6,6 +6,7 @@ var request = require('request');
 
 var PaymentAPIKey = 'rzp_live_frMZlamkE50d2H';
 var PaymentAPISecretKey = '3anfw8nsYZSO5FveTA6FtZIf';
+var DefaultGST = "06KIUJUSBID2333";
 
 module.exports = {
 
@@ -103,6 +104,7 @@ module.exports = {
       rzp_order_id: req.body.rzp_order_id,
       rzp_signature: req.body.rzp_signature,
       rzp_payment_status: req.body.rzp_payment_status,
+      status: req.body.rzp_payment_status,
       payment_via: 'Mobile_App'
     }).fetch();
 
@@ -143,7 +145,8 @@ module.exports = {
         payment_id: PaymentData.id
       }).fetch();
 
-      let UpdateBid = await Bids.updateOne({ id: bid_id }).set({ is_booked: true, is_paid: true });
+      //----Update Bid Status By Paid------------------------------------------------
+      await Bids.updateOne({ id: bid_id }).set({ is_booked: true, is_paid: true });
 
       //send email to user & hotelier---------------------------------------------------
       let userdata = await User.findOne({ userId: BidsUpdated.userId });
@@ -167,8 +170,6 @@ module.exports = {
     } else {
       return res.send({ responseCode: 201, msg: 'Booking already exists using this Bid ID' });
     }
-
-
   },
 
 
@@ -562,9 +563,24 @@ module.exports = {
     var BookingId = reqParams.booking_id;
     var BookingData = await Bookings.findOne({ series: BookingId });
 
-    sails.log(BookingData, 'BookingData');
-
     if (BookingData) {
+        //-----------Get Hotel State to Get GST--------------------------
+      let BookedHotel = await Hotel.findOne({ select:['id', 'state'] }).where({id:BookingData.hotel_id});
+
+      sails.log(BookedHotel.state, 'Booking state');
+
+      if(!BookedHotel){ return res.send({ responseCode: 201, msg: 'Hotel Not Found' }); }
+
+      //-----------------Get Booking GST------------------------------------------------------------------------
+
+      let GSTState = await StateGST.findOne({gst_state:BookedHotel.state});
+      if(GSTState){
+        BookingData.gst = GSTState.gst_no;
+        BookingData.gst_address = GSTState.gst_address;
+      }else{
+        BookingData.gst = DefaultGST;
+      }
+
       let UserData = await User.findOne({ select: ['id', 'userId', 'firstname', 'lastname', 'mobile', 'email', 'address'] }).where({ userId: BookingData.userId });
       if (UserData) {
         BookingData.userdata = UserData;
@@ -580,7 +596,7 @@ module.exports = {
         return res.send({ responseCode: 201, msg: 'Booking Invoice Not Found' });;
       }
     } else {
-      return res.send({ responseCode: 201, msg: 'Booking Invoice Not Found' });;
+      return res.send({ responseCode: 201, msg: 'Booking Invoice Not Found' });
     }
     sails.log(BookingData, "BookingData");
 

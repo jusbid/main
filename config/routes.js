@@ -25,13 +25,13 @@ module.exports.routes = {
   'POST /create-agent': { controller: 'UserController', action: 'CreateAgent' },
   'POST /create-agent-request': { controller: 'UserController', action: 'CreateAgentRequest' },
   'POST /create-front-user': { controller: 'UserController', action: 'CreateFrontUser' },
-  'POST /user-login': { controller: 'UserController', action: 'UserLogin' },
-  'POST /front-user-login': { controller: 'UserController', action: 'FrontUserLogin' },
-  'POST /hotelier-login': { controller: 'UserController', action: 'Hotelier_Login' },
+  'POST /user-login': { controller: 'LoginController', action: 'UserLogin' },
+  'POST /front-user-login': { controller: 'LoginController', action: 'FrontUserLogin' },
+  'POST /hotelier-login': { controller: 'LoginController', action: 'Hotelier_Login' },
   
-  'POST /otp-login': { controller: 'UserController', action: 'LoginWithOTP' },
-  'POST /forgot-password': { controller: 'UserController', action: 'ForgotPassword' },
-  'POST /forgot-user-password': { controller: 'UserController', action: 'ForgotUserPassword' },
+  'POST /otp-login': { controller: 'LoginController', action: 'LoginWithOTP' },
+  'POST /forgot-password': { controller: 'LoginController', action: 'ForgotPassword' },
+  'POST /forgot-user-password': { controller: 'LoginController', action: 'ForgotUserPassword' },
   'POST /change-password': { controller: 'UserController', action: 'ChangePassword' },
   'POST /get-user-profile': { controller: 'UserController', action: 'GetUserProfile' },
   'POST /get-user-list': { controller: 'UserController', action: 'Get_UserList' },
@@ -63,7 +63,7 @@ module.exports.routes = {
   'POST /system-user': { controller: 'SystemUserController', action: 'Create_System_User' },
   'PUT /system-user': { controller: 'SystemUserController', action: 'Update_System_User' },
   'POST /get-system-users': { controller: 'SystemUserController', action: 'System_Users_List' },
-  'POST /system-user-login': { controller: 'SystemUserController', action: 'System_User_Login' },
+  'POST /system-user-login': { controller: 'LoginController', action: 'System_User_Login' },
   'POST /get-users-for-admin': { controller: 'SystemUserController', action: 'Get_Users_Admin' },
 
   'POST /get-all-complaints-admin': { controller: 'SystemUserController', action: 'Get_All_Admin_Complaints' },
@@ -79,9 +79,11 @@ module.exports.routes = {
   'POST /remove-bankdetail': { controller: 'BankDetailsController', action: 'Remove_BankDetails' },
 
   //-------------------Hotel Controller Routing-------------------------------------------------------------
+  'POST /onboard-hotel': { controller: 'HotelController', action: 'OnBoard_Hotel' },
+  //deprecated api-----------------------
   'POST /create-hotel': { controller: 'HotelController', action: 'CreateHotel' },
   'POST /create-admin-hotel': { controller: 'HotelController', action: 'Create_Admin_Hotel' },
-
+  //deprecated api-----------------------
   'POST /create-hotel-rooms': { controller: 'HotelController', action: 'CreateHotelRooms' },
   'POST /create-hotel-rooms-hotelier': { controller: 'HotelController', action: 'CreateHotelRooms_Hotelier' },
   'POST /edit-hotel-rooms-hotelier': { controller: 'HotelController', action: 'EditHotelRooms_Hotelier' },
@@ -159,6 +161,9 @@ module.exports.routes = {
   'POST /save-query': { controller: 'MastersController', action: 'Save_Query' },
   'POST /enquiries': { controller: 'MastersController', action: 'Get_Queries' },
   'GET /update-user-field': { controller: 'MastersController', action: 'Update_user_field' },
+  'GET /update-addon-field': { controller: 'MastersController', action: 'Update_Addonfield' },
+  
+  'GET /update-room-field': { controller: 'MastersController', action: 'Update_room_field' },
   'GET /update-hotel-field': { controller: 'MastersController', action: 'Update_hotel_field' },
   'GET /update-hotel-createdate': { controller: 'MastersController', action: 'Update_hotel_createdate' },
   

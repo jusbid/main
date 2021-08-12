@@ -279,7 +279,7 @@ module.exports.sendBookingConfirmationToHotelier = function (obj) {
             var htmlToSend = template(replacements);
             var mailOptions = {
                 from: EmailFrom,
-                to: UserData.email,
+                to: "khushal.cornice@gmail.com",
                 subject: 'New Booking has been Confirmed!',
                 html: htmlToSend
             };

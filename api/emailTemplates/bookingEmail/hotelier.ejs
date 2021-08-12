@@ -2,38 +2,40 @@
 <html>
 
 <head>
-    <title>Jusbid Booking Confimation Mail</title>
+    <title>Jusbid Hotelier Booking Confimation Mail</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <div style="max-width: 900px; margin: 15px auto; border: 1px solid #fff; font-family: 'Poppins', sans-serif;">
         <div style="padding: 20px 15px; text-align: center;border:1px solid #666">
-            <img src="http://rudrohom.com:1337/images/email/logo.png" alt=""
+            <img src="https://jusbid.in:1337/images/logo_jusbid.png" alt=""
                 style="width:200px;height:100%;object-fit: contain;">
         </div>
         <div
-            style="background-image: url('http://rudrohom.com:1337/images/email/main.jpg');height: 322px;background-position: center;background-size: cover;">
-            <h3 style="font-size: 34px;color:#fc8230;text-align:center;padding: 136px 0px;margin: 0;background-color: rgba(0, 0, 0, 0.7);"> Booking Confirmed </h3>
+            style="background: url('https://mcdn.wallpapersafari.com/medium/52/81/z9FxcE.jpg');background-size: cover;background-repeat: no-repeat ;">
+            <h3 style="font-size: 34px;color:#ffffff;text-align:center;padding: 100px 0px;margin: 0;"> Booking Confirmed </h3>
         </div>
-        <div style="background: #f9f9f9; padding: 30px 15px; color: #333; font-size: 14px;">
+        <div style="background: #f9f9f9; padding: 30px 15px; color: #333; font-size: 18px;">
                     
-            <p style="font-size: 16px;line-height: 24px;">
-                Hotel - {{hotel_name}}, <br>
+            <p style="font-size: 18px;line-height: 26px;">
+                <h3>Hotel - <b>{{hotel_name}}</b>,</h3>
 
-                Dear Hotel Manager, <br>
+                <h4>Dear Hotel Manager,</h4>
 
-                Jusbid would like to reserve accommodation in your hotel,
+                Jusbid have recieved a new booking confirmation for your hotel and customer would need to reserve accommodation in your hotel for details given below,
+                please check and do needful to welcome our guest,
+                <br><br>
 
-                Arrival date will be on {{arrival_date}}.
-                Departure date will be on {{departure_date}}.
+                Arrival Date : <b>{{arrival_date}}</b> <br>
+                Departure Date : <b>{{departure_date}}</b><br><br>
 
-                Thank you for your prompt attention to the above, kindly check bookings on hotelier portal,
+                Thank you for your prompt attention to the above, kindly check bookings on hotelier portal, <br>
 
-                Kind Regards,
+                Kind Regards, 
             </p>
-            <p style="font-size: 16px;line-height: 24px;">Thank you,</p>
-            <p style="font-size: 16px;line-height: 24px;">Team Jusbid.</p>
+            <p style="font-size: 18px;line-height: 26px;">Thank you,</p>
+            <p style="font-size: 18px;line-height: 26px;">Team Jusbid.</p>
         </div>
     </div>
 </body>

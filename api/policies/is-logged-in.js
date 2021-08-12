@@ -1,26 +1,36 @@
-/**
- * is-logged-in
- *
- * A simple policy that allows any request from an authenticated user.
- *
- * For more about how to use policies, see:
- *   https://sailsjs.com/config/policies
- *   https://sailsjs.com/docs/concepts/policies
- *   https://sailsjs.com/docs/concepts/policies/access-control-and-permissions
- */
+//  ---------SHA 1------------jusbid internal team---------------
+
+let InternalToken = "25A540F768487C9EAD4EB06CEDFDE8DCD8B8261AE2E5E035F944979DF3CEA9F5";
+
 module.exports = async function (req, res, proceed) {
 
-  // If `req.me` is set, then we know that this request originated
-  // from a logged-in user.  So we can safely proceed to the next policy--
-  // or, if this is the last policy, the relevant action.
-  // > For more about where `req.me` comes from, check out this app's
-  // > custom hook (`api/hooks/custom/index.js`).
-//  if (req.me) {
-    return proceed();
-//  }
+  // let Headers = req.headers;
+  // //get JAT & JST--------------------------------------------------------------------
+  // if(Headers.jat){
+  //   //-----------set situation for admin-----------------------
+  //   if(Headers.jst == "admin"){
+  //     //-----Check if Token User Exists-------------------
+  //     let TokenValid = functions2.CheckToken(Headers.jat);
+  //     if(TokenValid && Headers.jpt == InternalToken){
+  //       return proceed();
+  //     }else{
+  //       res.status(403);
+  //       return res.json({
+  //           error: 'Invalid Api Key'
+  //       });
+  //     }
+  //   }else{
+  //     //-----------------Set for Other Users------------------------
+  //     return proceed();
 
-  //--•
-  // Otherwise, this request did not come from a logged-in user.
- // return res.unauthorized();
+  //   }
+
+  // }else{
+  //   res.status(403);
+  //       return res.json({
+  //           error: 'Invalid Access Token'
+  //       });
+  // }
+  return proceed();
 
 };

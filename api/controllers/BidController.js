@@ -466,12 +466,9 @@ module.exports = {
 
     },
 
-
     Update_Bid_Status: async (req, res) => {
-
         let bid_id = req.body.bid_id;
         let status = req.body.status;
-
         let BidsUpdated = await Bids.updateOne({ id: bid_id }).set({ status: status, reason: req.body.reason });
         let UserData = await User.findOne({ userId: BidsUpdated.userId });
         if (!BidsUpdated) {
@@ -483,7 +480,8 @@ module.exports = {
                     functions2.Send_Single_SMS(UserData.mobile, sms_msg);
                 }
                 else if(status == "Rejected"){
-                    let R_Bid_SMS ='Hello '+BidsUpdated.firstname+', Your Bid for Hotel '+BidsUpdated.hotel_name+' of '+BidsUpdated.price+' has been rejected please try rebid. Thank you Team Jusbid';
+                    //let R_Bid_SMS ='Hello Avdesh, Your Bid for Hotel abctest of test has been tested please test.\nThank you\nTeam Jusbid';
+                    let R_Bid_SMS ='Hello '+BidsUpdated.firstname+', Your Bid for Hotel '+BidsUpdated.hotel_name+' of '+BidsUpdated.price+' has been rejected please rebid.\nThank you\nTeam Jusbid';
                     sails.log(R_Bid_SMS, 'R_Bid_SMS-------------');
                     functions2.Send_Single_SMS(UserData.mobile, R_Bid_SMS);
                 }
@@ -494,7 +492,6 @@ module.exports = {
             return res.send({ responseCode: 200, msg: 'Bid updated successfully', data: BidsUpdated });
 
         }
-
     },
 
     Cancel_Bid: async (req, res) => {

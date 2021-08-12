@@ -1,7 +1,8 @@
 var request = require('request');
-
+var JusbidBase64 = "anVzYmlk";
 var userId_sms = encodeURIComponent("rudroalt");
 var passwd_sms = "rudro_7alt";
+var CryptoJS = require("crypto-js");
 
 // module.exports.RecievePaymentStatus = function (payment_id) {
 
@@ -18,6 +19,30 @@ var passwd_sms = "rudro_7alt";
 
 
 // }
+
+module.exports.Test_Single_SMS = function () {
+
+  let R_Bid_SMS ='Hello Avdesh, Your Bid for Hotel abctest of test has been tested please test.\nThank you\nTeam Jusbid';
+
+  sails.log(R_Bid_SMS, 'R_Bid_SMS');
+
+
+  let mobileSend = '7412064075';
+  let URL = "https://push3.aclgateway.com/servlet/com.aclwireless.pushconnectivity.listeners.TextListener?appid=rudroalt&userId=rudroalt&pass=rudro_7alt&contenttype=1&from=JBDBID&to="+mobileSend+"&text="+R_Bid_SMS+"&alert=1&selfid=true&dlrreq=true&intflag=false";
+
+  request({
+    method: 'GET',
+    url: URL,
+  }, function (error, response, body) {
+    sails.log(response, 'Test_Single_SMS');
+    if (error) {
+      sails.log(error);
+    }else{
+      sails.log( body);
+    }
+  });
+
+}
 
 
 module.exports.Send_Single_SMS = function (mobile_no, message) {
@@ -95,5 +120,31 @@ module.exports.Send_Single_SMS = function (mobile_no, message) {
         sails.log( body);
       }
     });
+
+  }
+
+  // module.exports.CheckToken = function () {
+
+  // }
+
+
+  module.exports.CheckToken = function (ciphertext) {
+    var JusbidKey = "jusbid key2020";
+
+    var bytes  = CryptoJS.AES.decrypt(ciphertext, JusbidKey);
+    var originalText = bytes.toString(CryptoJS.enc.Utf8);
+
+    sails.log(originalText, 'originalText-', ciphertext);
+
+    
+
+
+    if(!originalText){
+      return false;
+    }else{
+      return true;
+    }
+
+    
 
   }

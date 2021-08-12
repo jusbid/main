@@ -1,6 +1,7 @@
 var SHA256 = require("crypto-js/sha256");
 var fs = require('fs');
 var async = require('async');
+var InitRange = 10;
 
 
 module.exports = {
@@ -14,20 +15,30 @@ module.exports = {
         var guest_no = req.body.guest_no;
         var lat = req.body.lat;
         var long = req.body.long;
-
-        let Searched_hotels = await Hotel.find({ city: city, is_deleted: false,  status:'Approved' }).limit(1000);
+        var UserLatLong = {};
+        // set user lat long---------------------------------------------------
+        if(lat && long){UserLatLong.lat = lat; UserLatLong.long = long}
+        let Searched_hotels = await Hotel.find({ city: city, is_deleted: false,  status:'Approved' }).limit(500);
 
         async.forEachOf(Searched_hotels, function (value, i, callback) {
+            let HotelLatLong = { lat: value.latitude, long: value.longitude }
+            // checj by lat long-----------------------------------------------------
+            let CheckLatLong = functions.Check_Lat_Long( UserLatLong,HotelLatLong, 1);
 
-            HotelRooms.find({ hotel_id: value.id }).sort('price ASC').exec(function (err, HotelRooms) {
-                if (HotelRooms.length == 0) {
-                    Searched_hotels[i].room_price = null;
-                } else {
-                    Searched_hotels[i].room_price = HotelRooms[0].price;
-                }
+            if(CheckLatLong){
+                HotelRooms.find({ hotel_id: value.id }).sort('price ASC').exec(function (err, HotelRooms) {
+                    if (HotelRooms.length == 0) {
+                        Searched_hotels[i].room_price = null;
+                    } else {
+                        Searched_hotels[i].room_price = HotelRooms[0].price;
+                    }
 
+                    callback();
+                });
+            }
+            else{
                 callback();
-            });
+            }
 
         }, function (err) {
 
@@ -366,7 +377,7 @@ module.exports = {
         async.forEachOf(recommended_hotels, function (hotel, i, callback) {
 
             let HotelLatLong = { lat: hotel.latitude, long: hotel.longitude }
-            let CheckHotelPosition = functions.Check_Lat_Long(UserLatLong, HotelLatLong, 100);
+            let CheckHotelPosition = functions.Check_Lat_Long(UserLatLong, HotelLatLong, 10);
 
             if (CheckHotelPosition) {
                 //push room price----------------------------------------------------------------

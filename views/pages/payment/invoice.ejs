@@ -2,8 +2,6 @@
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <!------ Include the above in your HEAD tag ---------->
-
-<!--Author      : @arboshiki-->
 <div id="invoice">
 
     <div class="toolbar hidden-print">
@@ -18,18 +16,20 @@
             <header>
                 <div class="row">
                     <div class="col">
-                        <a target="_blank" href="https://rudrohom.com">
+                        <a target="_blank" href="https://jusbid.in">
                             <img style="width: 200px;" src="/images/icons/invoice-logo.png"
                                 data-holder-rendered="true" />
                         </a>
                     </div>
                     <div class="col company-details">
                         <h2 class="name">
-                            <a target="_blank" href="https://rudrohom.com">
+                            <a target="_blank" href="https://jusbid.in">
                                 Jusbid Pvt. Ltd.
                             </a>
                         </h2>
-                        <div>4-C, Hotel Udaivillas Road, Haridas ji ki Magri, Udaipur, Rajasthan, India 313004</div>
+                        <div>GST- <%=  BookingData.gst  %></div>
+                        <!-- <div>4-C, Hotel Udaivillas Road, Haridas ji ki Magri, Udaipur, Rajasthan, India 313004</div> -->
+                        <div> <%= BookingData.gst_address %> </div>
                         <div>+91 9983301799</div>
                         <div>Sales@rudrohom.com</div>
                     </div>
@@ -126,7 +126,7 @@
                 </div>
             </main>
             <footer>
-                Invoice was created on a computer and is valid without the signature and seal.
+                Invoice was a system generated and is valid without the signature and seal.
             </footer>
         </div>
         <!--DO NOT DELETE THIS div. IT is responsible for showing footer always at the bottom-->

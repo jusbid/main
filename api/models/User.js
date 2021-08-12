@@ -197,8 +197,8 @@ module.exports = {
     },
 
     lastSeenAt: {
-      type: 'string',
-      defaultsTo: "",
+      type: 'number',
+      defaultsTo: 0,
     },
 
     status:{

@@ -9,7 +9,7 @@ module.exports = {
 
     Sample_SMS: async (req, res) => {
 
-        functions2.Send_Single_SMS_Test();
+        functions2.Test_Single_SMS();
         return res.send({ responseCode: 202, msg: 'SMS Service Called' });
     },
 
@@ -45,6 +45,43 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'Unable to fetch UpdatedUser' });
         }
 
+    },
+
+    Update_room_field: async (req, res) => {
+
+        var UpdatedUser = await RoomImages.update({}).set({is_active:true});
+
+        if (UpdatedUser) {
+            return res.send({ responseCode: 200, msg: 'Updatedroom data updated', data: UpdatedUser });
+        } else {
+            return res.send({ responseCode: 201, msg: 'Unable to fetch Updated Room' });
+        }
+
+    },
+
+    Update_Addonfield: async (req, res) => {
+
+        var Addons = await AddOn.find();
+
+        sails.log(Addons.length, 'addn');
+
+        async.forEachOf(Addons, function (value, i, callback) {
+
+            let priceparsed = parseInt(value.price);
+
+            AddOn.updateOne({id:value.id}).set({price:priceparsed}).exec(function (err, HotelUpdate) { 
+                callback();
+           });
+
+           
+
+        }, function (err) {
+            if (Addons) {
+                return res.send({ responseCode: 200, msg: 'Addons data updated'});
+            } else {
+                return res.send({ responseCode: 201, msg: 'Unable to Update Addons' });
+            }
+        });
     },
 
     Update_hotel_field: async (req, res) => {

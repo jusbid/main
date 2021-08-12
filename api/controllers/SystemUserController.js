@@ -1,30 +1,11 @@
 var async = require('async');
+var SHA256 = require("crypto-js/sha256");
+var JusbidBase64 = "anVzYmlk";
 
 module.exports = {
 
 
-    System_User_Login: async (req, res) => {
 
-        if (!req.body.userId && !req.body.password) {
-            return res.send({ responseCode: 201, data: {}, msg: 'Please provide login credentials' });
-        }
-
-        let UserData = await SystemUser.findOne({
-            userId: req.body.userId, password: req.body.password
-        });
-
-        if (!UserData) {
-            return res.send({ responseCode: 201, data: {}, msg: 'No user found using these credentials' });
-        }
-        else {
-
-            if (UserData.status != 'Approved') {
-                return res.send({ responseCode: 201, data: {}, msg: "User is not activated, please contact admin.." });
-            }
-            return res.send({ responseCode: 200, data: UserData, msg: "Welcome back " + UserData.firstname + ", you have logged in successfully!" });
-        }
-
-    },
 
 
     Create_Admin: async (req, res) => {
