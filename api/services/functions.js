@@ -938,6 +938,7 @@ module.exports.Get_Cities = function () {
          "Mattannur",
          "Mavelikkara",
          "Mavoor",
+         "Munnar",
          "Muvattupuzha",
          "Nedumangad",
          "Neyyattinkara",
@@ -1522,7 +1523,7 @@ module.exports.Get_Cities = function () {
          "Virudhunagar",
          "Viswanatham"
       ],
-      "TL": [
+      "TS": [
          "Adilabad",
          "Bellampalle",
          "Bhadrachalam",

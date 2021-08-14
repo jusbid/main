@@ -10,6 +10,8 @@ module.exports.routes = {
   'POST /save-hotelier-payment': { controller: 'ERPController', action: 'Save_Hotelier_Payments' },
   'POST /get-hotelier-payment': { controller: 'ERPController', action: 'Get_Hotelier_Payments' },
   'POST /save-balance-sheet-data': { controller: 'ERPController', action: 'Save_Balance_Sheet_Data' },
+  'POST /get-agent-bookings': { controller: 'ERPController', action: 'Get_Agent_Bookings' },
+  
   
   
   //-------------------ERPUser Controller Controller----------------------------------------------------------------
@@ -80,11 +82,9 @@ module.exports.routes = {
 
   //-------------------Hotel Controller Routing-------------------------------------------------------------
   'POST /onboard-hotel': { controller: 'HotelController', action: 'OnBoard_Hotel' },
-  //deprecated api-----------------------
-  'POST /create-hotel': { controller: 'HotelController', action: 'CreateHotel' },
+
   'POST /create-admin-hotel': { controller: 'HotelController', action: 'Create_Admin_Hotel' },
-  //deprecated api-----------------------
-  'POST /create-hotel-rooms': { controller: 'HotelController', action: 'CreateHotelRooms' },
+
   'POST /create-hotel-rooms-hotelier': { controller: 'HotelController', action: 'CreateHotelRooms_Hotelier' },
   'POST /edit-hotel-rooms-hotelier': { controller: 'HotelController', action: 'EditHotelRooms_Hotelier' },
   'POST /remove-hotel-rooms-hotelier': { controller: 'HotelController', action: 'RemoveHotelRooms_Hotelier' },
@@ -111,7 +111,7 @@ module.exports.routes = {
   'POST /get-bdm-hotels-admin': { controller: 'HotelController', action: 'Get_BDM_Hotels_Admin' },
 
   'POST /get-bdm-assigned-hotels': { controller: 'HotelController', action: 'Get_BDM_Assigned_Hotels' },
-  'POST /restricted-delete-hotel': { controller: 'HotelController', action: 'Restricted_Delete_Hotel' },
+  // 'POST /restricted-delete-hotel': { controller: 'HotelController', action: 'Restricted_Delete_Hotel' },
   'POST /get-hotel-addon': { controller: 'HotelController', action: 'Get_Hotel_AddOn' },
   'POST /add-hotel-addon': { controller: 'HotelController', action: 'Add_Hotel_AddOn' },
   'POST /update-hotel-addon': { controller: 'HotelController', action: 'Update_Hotel_AddOn' },
@@ -166,6 +166,9 @@ module.exports.routes = {
   'GET /update-room-field': { controller: 'MastersController', action: 'Update_room_field' },
   'GET /update-hotel-field': { controller: 'MastersController', action: 'Update_hotel_field' },
   'GET /update-hotel-createdate': { controller: 'MastersController', action: 'Update_hotel_createdate' },
+  'GET /update-hotelier-id': { controller: 'MastersController', action: 'Update_hotelier_id' },
+
+  
   
 
   //-------------------Admin Dashboard-------------------------------------------------------------------
@@ -315,6 +318,11 @@ module.exports.routes = {
   'GET /gst-list': { controller: 'StateGSTController', action: 'Get_GST_List' },
   'POST /create-gst': { controller: 'StateGSTController', action: 'Create_GST' },
   'POST /update-gst': { controller: 'StateGSTController', action: 'Update_GST' },
+
+  //----------------------Deprecated Controller-----------------------------------------------------------------------------
+
+  'POST /create-hotel-rooms': { controller: 'DeprecatedController', action: 'CreateHotelRooms' },
+  'POST /create-hotel': { controller: 'DeprecatedController', action: 'CreateHotel' },
 
   
 

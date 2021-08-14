@@ -121,12 +121,12 @@ FrontUserLogin: async (req, res) => {
     var UserData;
 
     UserData = await User.findOne({
-        select: ['userId', 'id', 'firstname', 'lastname', 'email', 'userId', 'mobile', 'userToken', 'password']
+        select: ['userId', 'id', 'firstname', 'lastname', 'email', 'userId', 'mobile', 'userToken', 'password', 'role']
     }).where({ email: req.body.user, password: req.body.password, role: [4, 6] });
 
     if (!UserData) {
         UserData = await User.findOne({
-            select: ['userId', 'id', 'firstname', 'lastname', 'email', 'userId', 'mobile', 'userToken', 'password']
+            select: ['userId', 'id', 'firstname', 'lastname', 'email', 'userId', 'mobile', 'userToken', 'password', 'role']
         }).where({ mobile: req.body.user, password: req.body.password, role: [4, 6] });
     }
 

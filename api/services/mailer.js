@@ -65,6 +65,34 @@ module.exports.sendWelcomeMail = function (obj) {
 
 }
 
+module.exports.sendAgentMail = function (obj) {
+
+    readHTMLFile('api/emailTemplates/welcomeEmail/agentWelcome.ejs', function (err, html) {
+        var template = handlebars.compile(html);
+        var replacements = {
+            name: obj.firstname + ' ' + obj.lastname,
+            user: obj.userId,
+            password: obj.password,
+            email: obj.email
+        };
+        var htmlToSend = template(replacements);
+        var mailOptions = {
+            from: EmailFrom,
+            to: obj.email,
+            subject: 'Welcome to Jusbid!',
+            html: htmlToSend
+        };
+        transporter.sendMail(mailOptions, function (error, response) {
+            if (error) {
+                console.log(error);
+            } else {
+                sails.log(response, 'response email welcome')
+            }
+        });
+    });
+
+}
+
 module.exports.sendHotelRequestBDE = function (obj) {
 
     readHTMLFile('api/emailTemplates/BDE/hotelrequest.ejs', function (err, html) {

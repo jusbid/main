@@ -16,36 +16,58 @@ module.exports = {
         var lat = req.body.lat;
         var long = req.body.long;
         var UserLatLong = {};
+        var ProcessedHotels = [];
         // set user lat long---------------------------------------------------
         if(lat && long){UserLatLong.lat = lat; UserLatLong.long = long}
-        let Searched_hotels = await Hotel.find({ city: city, is_deleted: false,  status:'Approved' }).limit(500);
+        let Searched_hotels = await Hotel.find({ city: city, is_deleted: false,  status:'Approved' }).limit(1000);
+
+
+        sails.log(Searched_hotels.length, 'Searched_hotels');
 
         async.forEachOf(Searched_hotels, function (value, i, callback) {
             let HotelLatLong = { lat: value.latitude, long: value.longitude }
             // checj by lat long-----------------------------------------------------
             let CheckLatLong = functions.Check_Lat_Long( UserLatLong,HotelLatLong, 1);
 
-            if(CheckLatLong){
+            sails.log(CheckLatLong, 'CheckLatLong');
+
+            if(CheckLatLong == true ){
                 HotelRooms.find({ hotel_id: value.id }).sort('price ASC').exec(function (err, HotelRooms) {
+                    sails.log(HotelRooms, 'HotelRooms');
+                    let this_hotel = value;
                     if (HotelRooms.length == 0) {
-                        Searched_hotels[i].room_price = null;
+                        this_hotel.room_price = null;
                     } else {
-                        Searched_hotels[i].room_price = HotelRooms[0].price;
+                        sails.log(HotelRooms[0].price, 'HotelRooms[0].price');
+                        this_hotel.room_price = HotelRooms[0].price;
                     }
+                    //push this hotel in processed records------------------------------------
+
+                    ProcessedHotels.push(this_hotel);
 
                     callback();
                 });
+
             }
             else{
+            //mark remove hotel------------------------------------------
+            //  Searched_hotels[i].remove = true;
                 callback();
             }
 
         }, function (err) {
+            //---------------------------------------------------------------------------------
+            // Searched_hotels =  Searched_hotels.filter(function(valueH) {
+            //     return valueH.remove != true;
+            // });
+            if(ProcessedHotels.length==0){
+                ProcessedHotels = Searched_hotels;
+            }
 
-            if (!Searched_hotels) {
+            if (!ProcessedHotels) {
                 return res.send({ responseCode: 201, msg: 'Hotels not found using this criteria', err: err });
             } else {
-                return res.send({ responseCode: 200, msg: 'Hotels Fetched successfully', data: Searched_hotels });
+                return res.send({ responseCode: 200, msg: 'Hotels Fetched successfully', data: ProcessedHotels });
 
             }
 

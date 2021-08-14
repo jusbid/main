@@ -129,6 +129,49 @@ module.exports = {
     },
 
 
+    Update_hotelier_id: async (req, res) => {
+
+        var Hotels = await Hotel.find();   
+
+        async.forEachOf(Hotels, function (value, i, callback) {
+
+            let hotel_id_org = value.id;
+            let hotelier_id = value.hotelierId;
+
+            if(hotel_id_org && hotelier_id){
+                User.findOne({userId:hotelier_id}).exec(function (err, HotelierData) { 
+                 //   sails.log(HotelierData.userId, 'hotelierid');
+                    if(HotelierData){
+                        if(HotelierData.hotel_id != hotel_id_org){
+                            sails.log('id is not same', hotel_id_org , hotelier_id, 'name->', value.name);
+                            User.updateOne({userId:hotelier_id}).set({ hotel_id: hotel_id_org}).exec(function (err, HotelierUpdated) { 
+                                callback(); 
+                            }); 
+                        }else{
+                            callback(); 
+                        }
+
+                    }else{
+                       // sails.log('no need to update->', value.name);
+                        callback(); 
+                    }
+                   });
+            }else{
+                callback(); 
+            }
+        }, function (err) {
+            if (Hotels) {
+                return res.send({ responseCode: 200, msg: 'Hotelier data updated'});
+            } else {
+                return res.send({ responseCode: 201, msg: 'Unable to Update Hotelier' });
+            }
+        });
+
+       
+
+    },
+
+
     GetAmenities: async (req, res) => {
 
         var AmenitiesData = await Amenities.find({});

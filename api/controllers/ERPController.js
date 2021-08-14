@@ -186,5 +186,37 @@ module.exports = {
   },
 
 
+  Get_Agent_Bookings: async (req, res) => {
+
+    let StartDate = req.body.start_date;
+    let EnDate = req.body.end_date;
+    let UserId = req.body.userId;
+    var BidsAll = [];
+
+    if (StartDate && EnDate) {
+        BidsAll = await Bookings.find({
+            createdAt: { '>': new Date(StartDate), '<': new Date(EnDate) }, userId: UserId
+        }).sort('createdAt DESC');
+    } else {
+        BidsAll = await Bookings.find({
+            where: {
+                createdAt: {
+                    '>': new Date('2018-08-24T14:56:21.774Z')
+                }, userId: UserId
+            }
+        }).limit(100).sort('createdAt DESC');
+    }
+
+    if (!BidsAll) {
+        return res.send({ responseCode: 201, msg: 'Bookings not found' });
+    } else {
+        return res.send({ responseCode: 200, msg: 'Bookings Fetched', data: BidsAll });
+
+    }
+
+},
+
+
+
 
 }

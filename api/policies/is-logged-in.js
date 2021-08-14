@@ -4,7 +4,8 @@ let InternalToken = "25A540F768487C9EAD4EB06CEDFDE8DCD8B8261AE2E5E035F944979DF3C
 
 module.exports = async function (req, res, proceed) {
 
-  // let Headers = req.headers;
+  let Headers = req.headers;
+   sails.log(Headers, 'Headers');
   // //get JAT & JST--------------------------------------------------------------------
   // if(Headers.jat){
   //   //-----------set situation for admin-----------------------
@@ -19,10 +20,21 @@ module.exports = async function (req, res, proceed) {
   //           error: 'Invalid Api Key'
   //       });
   //     }
-  //   }else{
-  //     //-----------------Set for Other Users------------------------
-  //     return proceed();
+  //   }else if(Headers.jst == "app_user"){
+  //     //-----------------Set for front Users------------------------
+  //      //-----Check if Token User Exists-------------------
+  //      let TokenValid = functions2.CheckToken(Headers.jat);
+  //      if(TokenValid && Headers.jpt == InternalToken){
+  //        return proceed();
+  //      }else{
+  //        res.status(403);
+  //        return res.json({
+  //            error: 'Invalid Api Key'
+  //        });
+  //      }
 
+  //   }else{
+  //     return proceed();
   //   }
 
   // }else{
@@ -31,6 +43,8 @@ module.exports = async function (req, res, proceed) {
   //           error: 'Invalid Access Token'
   //       });
   // }
+
+
   return proceed();
 
 };
