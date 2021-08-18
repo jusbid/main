@@ -121,12 +121,12 @@ FrontUserLogin: async (req, res) => {
     var UserData;
 
     UserData = await User.findOne({
-        select: ['userId', 'id', 'firstname', 'lastname', 'email', 'userId', 'mobile', 'userToken', 'password', 'role']
+    //    select: ['userId', 'id', 'firstname', 'lastname', 'email', 'userId', 'mobile', 'userToken', 'password', 'role']
     }).where({ email: req.body.user, password: req.body.password, role: [4, 6] });
 
     if (!UserData) {
         UserData = await User.findOne({
-            select: ['userId', 'id', 'firstname', 'lastname', 'email', 'userId', 'mobile', 'userToken', 'password', 'role']
+            //select: ['userId', 'id', 'firstname', 'lastname', 'email', 'userId', 'mobile', 'userToken', 'password', 'role']
         }).where({ mobile: req.body.user, password: req.body.password, role: [4, 6] });
     }
 
@@ -204,6 +204,41 @@ ForgotUserPassword: async (req, res) => {
         return res.send({ responseCode: 201, data: UserData, msg: 'User with these credentials does not exists, please try again..' });
     }
 },
+
+Get_MultiChain_Hotels: async (req, res) => {
+
+    if(!req.body.email){
+        return res.send({ responseCode: 200, data: UserData, msg: 'Please provide group hotel email..' });
+    }
+
+    let Hotels = await Hotel.find({email: req.body.email});
+
+    if (Hotels) {
+        return res.send({ responseCode: 200, data: Hotels, msg: 'Hotels Fetched!' });
+    } else {
+        return res.send({ responseCode: 201, data: Hotels, msg: 'Unable to find group hotels using this email address!' });
+    }
+
+},
+
+
+Login_MultiChain_Hotels: async (req, res) => {
+
+    if(!req.body.hotel_id && !req.body.password){
+        return res.send({ responseCode: 200, data: UserData, msg: 'Please provide required parameters..' });
+    }
+
+    let Hotels = await User.findOne({hotel_id: req.body.hotel_id, password: req.body.password});
+
+    if (Hotels) {
+        return res.send({ responseCode: 200, data: Hotels, msg: 'Hotels Fetched!' });
+    } else {
+        return res.send({ responseCode: 201, data: Hotels, msg: 'Unable to find group hotels using this email address!' });
+    }
+
+},
+
+
 
 
 }

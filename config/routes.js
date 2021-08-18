@@ -12,8 +12,6 @@ module.exports.routes = {
   'POST /save-balance-sheet-data': { controller: 'ERPController', action: 'Save_Balance_Sheet_Data' },
   'POST /get-agent-bookings': { controller: 'ERPController', action: 'Get_Agent_Bookings' },
   
-  
-  
   //-------------------ERPUser Controller Controller----------------------------------------------------------------
   'POST /erp-user': { controller: 'ERPUserController', action: 'Create_ERP_User' },
   'POST /create-update-branch': { controller: 'ERPUserController', action: 'Create_Update_Branch' },
@@ -94,7 +92,12 @@ module.exports.routes = {
 
   'POST /get-hotels-byid': { controller: 'HotelController', action: 'Get_Hotels_ById' },
   'POST /update-hotel-status': { controller: 'HotelController', action: 'Update_Hotel_Status' },
- 
+
+
+  'POST /get-multichain-hotels': { controller: 'LoginController', action: 'Get_MultiChain_Hotels' },
+  'POST /login-multichain-hotels': { controller: 'LoginController', action: 'Login_MultiChain_Hotels' },
+  
+  
   
   'POST /remove-hotel': { controller: 'HotelController', action: 'Remove_Hotel' },
   'GET /deactivate-hotel': { controller: 'HotelController', action: 'Change_Hotel_Status' },
@@ -131,6 +134,10 @@ module.exports.routes = {
 
   'POST /paginated-hotels': { controller: 'HotelController', action: 'Get_Hotels_Admin_Paginated' },
   'GET /set-commission': { controller: 'HotelController', action: 'Set_Hotel_Commissions' },
+
+
+
+  
   
 
   //-------------------Hotel Controller Routing-------------------------------------------------------------
@@ -218,6 +225,8 @@ module.exports.routes = {
   'POST /get-my-documents': { controller: 'HotelierController', action: 'Get_My_Documents' },
   'POST /remove-my-documents': { controller: 'HotelierController', action: 'Remove_My_Documents' },
   'POST /hotelier-resend-email': { controller: 'HotelierController', action: 'Hotelier_Cred_Resend' },
+  'POST /update-group-hotel-status': { controller: 'HotelierController', action: 'Update_Group_Hotel_Status' },
+
   
 
   //----------------------------------Masters----------------------------------------------------------------------
@@ -326,4 +335,11 @@ module.exports.routes = {
 
   
 
+  //-----------------------------Flight Controller-----------------------------------------------------------------------------------------------------
+
+
+  'GET /flight': { controller: 'FlightController', action: 'LowFareBinding' },
+  'POST /search-flight': { controller: 'FlightController', action: 'Search_Low_Fare_Flight' },
+  'GET /airports': { controller: 'FlightController', action: 'Get_Airports' },
+  'GET /airlines': { controller: 'FlightController', action: 'Get_Airlines' },
 };

@@ -414,9 +414,78 @@ module.exports = {
                 return res.send({ responseCode: 200, msg: 'Email sent to your registered email address' });
 
             });
+    },
 
 
+    Update_Group_Hotel_Status: async (req, res) => {
 
+        if (!req.body.hotel_id && !req.body.status) {
+            return res.send({ responseCode: 201, msg: 'Please provide hotel id & status' });
+        }
+
+        var HotelCheckStatus = await Hotel.findOne({ id: req.body.hotel_id, name: req.body.name });
+        sails.log(HotelCheckStatus, 'HotelCheckStatus');
+        var HotelPrimaryMail = HotelCheckStatus.email;
+        if (!HotelPrimaryMail) {
+            return res.send({ responseCode: 201, msg: 'Please update hotel primary email' });
+        }
+
+        var HotelData = await Hotel.updateOne({ id: req.body.hotel_id, name: req.body.name }).set({ status: req.body.status, statusNote: req.body.statusNote });
+
+        let UserCounts = await User.count();
+        let randomString = (Math.random() + 1).toString(36).substring(8);
+        let save_userid = HotelCheckStatus.name.substring(0, 3) + '' + randomString + (parseInt(UserCounts) + 1);
+
+        //----------set password same as other hotels of this group using respected common keys--------------------------------------------------------
+        let save_password = HotelPrimaryMail.substring(0, 5)+''+'jsgp21';
+
+        // check if hotelier user is created in system--------------------------------------------------------------------------
+        var FindHotelier = await User.findOne({}).where({ hotel_id: req.body.hotel_id, role: 5 });
+
+        if(save_userid){ save_userid = save_userid.replace(/ /g,"j");}
+
+        if(save_password){ save_password = save_password.replace(/ /g,"j");}
+
+        if (!FindHotelier && req.body.status == "Accepted") {
+            // Create hotelier user-------------------------------------------------------------------------------------------------
+            let Hotel_Mobile = HotelCheckStatus.manager_mobile;
+            if (!Hotel_Mobile) { Hotel_Mobile = HotelCheckStatus.mobile }
+            var UserCreatedData = await User.create({
+                mobile: Hotel_Mobile,
+                firstname: HotelCheckStatus.name,
+                email: HotelCheckStatus.email,
+                hotel_id: req.body.hotel_id,
+                role: 5,
+                userId: save_userid,
+                password: save_password,
+                status: 'Accepted',
+                statusNote: req.body.statusNote
+            }).fetch();
+
+            if (UserCreatedData) await Hotel.updateOne({ id: req.body.hotel_id }).set({ hotelierId: save_userid });
+
+            // send an email to hotel-------------------------------------------------------------------------------------------
+
+            NotificationsFunctions.HotelApprovalNotification_BDM_BDE(HotelCheckStatus.bdeId, HotelCheckStatus.name);
+            mailer.HotelierWelcome(UserCreatedData, HotelData.image);
+            mailer.BDE_Hotel_Approval(HotelData);
+
+        } else {
+            if (req.body.status == "Accepted" && FindHotelier) {
+                sails.log(FindHotelier, 'in accept case');
+                mailer.HotelierWelcome(FindHotelier, HotelData.image);
+                //   mailer.BDE_Hotel_Approval(HotelData);
+            }
+            else if (req.body.status == "Accepted" || req.body.status == "OnHold") {
+
+            }
+        }
+
+        if (HotelCheckStatus) {
+            return res.send({ responseCode: 200, msg: 'Hotel status updated successfully' });
+        } else {
+            return res.send({ responseCode: 201, msg: 'Unable to update hotel' });
+        }
 
     },
 

@@ -64,9 +64,7 @@ module.exports = {
             }, function (err, uploadedFiles1) {
 
                 if (!uploadedFiles1) {  return res.send({ responseCode: 201, msg: 'Please provide hotel image file' }); }
-
                 if (uploadedFiles1.length == 0) {  return res.send({ responseCode: 201, msg: 'Please provide hotel image file' });}
-
                 if (err) return res.serverError(err);
 
 
@@ -111,7 +109,9 @@ module.exports = {
                 // new keys----------------------------
                 hotel_views: req.body.hotel_views,
                 seasonal_months: req.body.seasonal_months,
-                star_rating: req.body.star_rating
+                star_rating: req.body.star_rating,
+                is_multichain:req.body.is_multichain,
+                secondary_email:req.body.secondary_email
 
             }).fetch().exec(function (err, HotelData) { 
 
@@ -151,13 +151,8 @@ module.exports = {
                             return res.send({ responseCode: 201, msg: 'error while saving hotel data & image, please try again..' });
                         }
                     })
-
             });
-
-           
-
         });
-
     },
 
 
@@ -241,32 +236,6 @@ module.exports = {
 
 
     },
-
-
-    CreateHotelFake: async (req, res) => {
-        setInterval(function () {
-            Hotel.create({
-
-                name: Math.random().toString(36).substring(7),
-                city: Math.random().toString(36).substring(7)
-
-            }).exec(function (err, RoomRecord) {
-                if (err) {
-                    sails.log(err);
-                    return res.send({ responseCode: 201, msg: err });
-
-                }
-
-            });
-
-
-        }, 1);
-        // return res.send({ responseCode: 200, msg: 'Hotel data updated successfully', data: HotelData });
-    },
-
-
-
-
 
     Get_Room_Details: async (req, res) => {
 
@@ -573,6 +542,7 @@ module.exports = {
 
         let start_date = req.body.start_date;
         let end_date = req.body.end_date;
+        let bde_id = req.body.bde_id;
         let status_collection = req.body.status_collection;
         sails.log(status_collection, 'status_collection');
         let HotelData = [];
@@ -580,22 +550,21 @@ module.exports = {
         sails.log(new Date(start_date), 'sd', new Date(end_date) );
 
         if (start_date && end_date) {
-            HotelData = await Hotel.find({ select:SelectFields }).where({  createdAt: { '>': new Date(start_date), '<': new Date(end_date) }, is_deleted:false   }).sort("createdAt DESC");
+            HotelData = await Hotel.find({ select:SelectFields }).where({ bdeId:bde_id, createdAt: { '>': new Date(start_date), '<': new Date(end_date) }, is_deleted:false   }).sort("createdAt DESC");
         } else {
-            HotelData = await Hotel.find({select:SelectFields}).where({ status: status_collection, is_deleted:false }).sort("createdAt DESC");
-       }
+            HotelData = await Hotel.find({select:SelectFields}).where({ bdeId:bde_id, status: status_collection, is_deleted:false }).sort("createdAt DESC");
+        }
 
-        sails.log(HotelData.length, 'found hotels------------------------');
-
-
+        
         async.forEachOf(HotelData, function (value, i, callback) {
             sails.log(value.createdAt, '---------------CD');
             HotelData[i].bde_name = '';
             if (value.bdeId && value.bdeId != '') {
                 // Getting Room Counts----------------------------------------------------------------------------------
-                HotelRooms.count({hotel_id : value.id}).exec(function (err, RoomsCounts) {
-                //sails.log(RoomsCounts, value.id, 'rooms----------');
-                HotelData[i].rooms = RoomsCounts;
+            let totalRooms = 0;
+            HotelRooms.find({hotel_id : value.id}).exec(function (err, RoomsData) {
+
+                HotelData[i].rooms = RoomsData;
                 User.findOne({ select: ["userId", "firstname", "lastname"] }).where({ userId: value.bdeId }).exec(function (err, UserData) {
                     if (UserData) {
                         HotelData[i].bde_name = UserData.firstname + ' ' + UserData.lastname;
@@ -606,7 +575,6 @@ module.exports = {
 
             } else { callback(); }
 
-            
 
         }, function (err) {
             if (HotelData.length == 0) {
@@ -1190,7 +1158,9 @@ module.exports = {
 
         let UserCounts = await User.count();
 
-        let save_userid = HotelCheckStatus.name.substring(0, 3) + '' + (parseInt(UserCounts) + 1);
+        let randomString = (Math.random() + 1).toString(36).substring(8);
+
+        let save_userid = HotelCheckStatus.name.substring(0, 3) + '' + randomString + (parseInt(UserCounts) + 1);
 
         let save_password = HotelCheckStatus.name.substring(0, 3) + '' + parseInt(Math.random() * 1000, 10) + '' + functions.Get_DateSeq();
 
@@ -1198,11 +1168,11 @@ module.exports = {
         var FindHotelier = await User.findOne({}).where({ hotel_id: req.body.hotel_id, role: 5 });
 
         if(save_userid){
-            save_userid = save_userid.replace(/ /g,"j")
+            save_userid = save_userid.replace(/ /g,"j");
         }
 
         if(save_password){
-            save_password = save_password.replace(/ /g,"j")
+            save_password = save_password.replace(/ /g,"j");
         }
 
         if (!FindHotelier && req.body.status == "Accepted") {
@@ -1599,7 +1569,7 @@ module.exports = {
 
     Get_Hotel_AddOn: async (req, res) => {
 
-        let AddOnCreated = await AddOn.find({ hotel_id: req.body.hotel_id, is_active:true }).sort('createdAt DESC');
+        let AddOnCreated = await AddOn.find({ hotel_id: req.body.hotel_id, is_active: true }).sort('createdAt DESC');
 
         return res.send({ responseCode: 200, data: AddOnCreated });
 
@@ -1612,9 +1582,14 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'Please provide required parameters..' });
         }
 
-        let checkDup = await AddOn.findOne({hotel_id: req.body.hotel_id, name : req.body.name});
+        let checkDup = await AddOn.find({hotel_id: req.body.hotel_id, name : req.body.name});
 
-        if(checkDup){
+        if(checkDup.length>=2){
+            await AddOn.destroy({hotel_id: req.body.hotel_id, name : req.body.name});
+            return res.send({ responseCode: 201, msg: 'Multiple addon exists with same, please try adding it again..' });
+        }
+
+        if(checkDup.length == 1){
             return res.send({ responseCode: 201, msg: 'AddOn already exists with this name..' });
         }
 
@@ -1638,7 +1613,7 @@ module.exports = {
 
     Update_Hotel_AddOn: async (req, res) => {
 
-        if(!req.body.hotel_id && !req.body.addon_id){
+        if(!req.body.hotel_id || !req.body.addon_id){
             return res.send({ responseCode: 201, msg: 'Please provide required parameters..' });
         }
 

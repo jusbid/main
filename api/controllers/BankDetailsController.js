@@ -48,6 +48,10 @@ module.exports = {
 
     Get_BankDetails: async (req, res) => {
 
+        if(!req.body.userId){
+        return res.send({ responseCode: 200, msg: 'Please provide required parameters' });
+        }
+
         let BankDetailRecord = await BankDetails.findOne({userId:req.body.userId});
 
         return res.send({ responseCode: 200, data: BankDetailRecord });

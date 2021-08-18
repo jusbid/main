@@ -123,6 +123,10 @@ module.exports = {
       type: 'string',
       required: false
     },
+    secondary_email: {
+      type: 'string',
+      required: false
+    },
     owner_name: {
       type: 'string',
       required: false
@@ -162,6 +166,10 @@ module.exports = {
     fax: {
       type: 'string',
       required: false
+    },
+    is_multichain: {
+      type: 'boolean',
+      defaultsTo: false
     },
     status: {
       type: 'string',
