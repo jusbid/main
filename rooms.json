@@ -1,2 +1,0 @@
- rooms: '[{"hotel_view":["Sea View","Lake View"],"room_view":["Lake View","Mountain View"],"room_type":[{"createdAt":"","updatedAt":"","id":"60178ae90315e525e0375b47","name":"Deluxe","icon":null,"capacity":2}],"room_amenities":[{"createdAt":"null","updatedAt":"null","id":"601e255bf582b22a5c3f9627","name":"Wifi","icon":"/images/icons/amenities/8ec10ef8-4e4a-4556-9a37-c91f2d9b640a.png"}],"month":["January","February"],"price":"5000","quantity":"5"}]'
-} Rooms Matter

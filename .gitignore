@@ -89,6 +89,8 @@ config/local.js
 
 node_modules
 
+assets
+
 
 ################################################
 #

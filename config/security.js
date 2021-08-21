@@ -35,7 +35,6 @@ module.exports.security = {
   allowRequestHeaders: "content-type, jat, jpt, jst" 
 },
 
-
   /****************************************************************************
   *                                                                           *
   * CSRF protection should be enabled for this application.                   *

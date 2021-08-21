@@ -226,6 +226,10 @@ module.exports.routes = {
   'POST /remove-my-documents': { controller: 'HotelierController', action: 'Remove_My_Documents' },
   'POST /hotelier-resend-email': { controller: 'HotelierController', action: 'Hotelier_Cred_Resend' },
   'POST /update-group-hotel-status': { controller: 'HotelierController', action: 'Update_Group_Hotel_Status' },
+  'POST /get-hotel-logo': { controller: 'HotelierController', action: 'Get_hotel_logo' },
+  'POST /hotel-room': { controller: 'HotelierController', action: 'Create_Hotel_Room_New' },
+  'POST /update-room': { controller: 'HotelierController', action: 'Update_Hotel_Room_New' },
+  
 
   
 
@@ -337,8 +341,6 @@ module.exports.routes = {
 
   //-----------------------------Flight Controller-----------------------------------------------------------------------------------------------------
 
-
-  'GET /flight': { controller: 'FlightController', action: 'LowFareBinding' },
   'POST /search-flight': { controller: 'FlightController', action: 'Search_Low_Fare_Flight' },
   'GET /airports': { controller: 'FlightController', action: 'Get_Airports' },
   'GET /airlines': { controller: 'FlightController', action: 'Get_Airlines' },

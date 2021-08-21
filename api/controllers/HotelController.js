@@ -146,7 +146,7 @@ module.exports = {
                             mailer.HotelAdded(HotelData);
                             NotificationsFunctions.HotelCreationNotification_BDM_BDE(req.body.bdeId, req.body.name);
                             mailer.Hotel_Add_Notification_BDM_with_Hotel(HotelData, req.body.bdeId);
-                            return res.send({ responseCode: 200, msg: 'Hotel created successfully..' });
+                            return res.send({ responseCode: 200, msg: 'Hotel created successfully..', data:HotelData });
                         } else {
                             return res.send({ responseCode: 201, msg: 'error while saving hotel data & image, please try again..' });
                         }
@@ -249,6 +249,9 @@ module.exports = {
             return res.send({ responseCode: 200, msg: 'Room Data Fetched', data: RoomData });
         }
     },
+
+
+    //---------------deprecated API---------------------------------------------------------------------------------------
 
     CreateHotelRooms_Hotelier: async (req, res) => {
 
@@ -983,15 +986,17 @@ module.exports = {
 
         }, function (err) {
 
-            var HotelDataApproved = HotelData.filter(function (itm) { return itm.status == "Approved" || itm.status == "Accepted"; });
+            var HotelDataApproved = HotelData.filter(function (itm) { return itm.status == "Approved" || itm.status == "Accepted" });
 
-            var HotelDataPending = HotelData.filter(function (itm) { return itm.status == "Processing"; });
+            var HotelDataAccepted = HotelData.filter(function (itm) { return itm.status == "Accepted" });
+
+            var HotelDataPending = HotelData.filter(function (itm) { return itm.status == "Processing" });
 
             if (HotelDataPending.length == 0 && HotelDataApproved.length == 0) {
                 return res.send({ responseCode: 201, data: {}, msg: 'No hotel found using this criteria' });
             }
             else {
-                return res.send({ responseCode: 200, approved: HotelDataApproved, pending: HotelDataPending });
+                return res.send({ responseCode: 200, approved: HotelDataApproved, pending: HotelDataPending, accepted:HotelDataAccepted });
             }
 
         });
@@ -1441,12 +1446,6 @@ module.exports = {
     Hotel_Logo_Upload: async (req, res) => {
 
         if (!req.body.hotel_id) {
-            //sails.log('Provide hotel ID to add an image');
-            return res.send({ responseCode: 201, msg: 'Provide hotel ID to add an image' });
-        }
-
-        if (!req.body.hotel_id) {
-            //sails.log('Provide hotel ID to add an image');
             return res.send({ responseCode: 201, msg: 'Provide hotel ID to add an image' });
         }
 
@@ -1456,11 +1455,13 @@ module.exports = {
 
         if (!fs.existsSync('assets/images/hotel' + FilePrefixPath)) { fs.mkdir('assets/images/hotel' + FilePrefixPath, function (err, result) { }); }
         var CheckLogo_Var = false;
-        let CheckLogo = await HotelImages.findOne({ hotel_id: req.body.hotel_id, name: "Logo" });
+        let CheckLogo = await HotelImages.find({ hotel_id: req.body.hotel_id, name: "Logo" });
 
         //------sails.log(CheckLogo, 'CheckLogo object');
 
-        if (CheckLogo) {
+        if (CheckLogo.length > 1) {
+            await HotelImages.destroy({ hotel_id: req.body.hotel_id, name: "Logo" });
+        }else{
             CheckLogo_Var = true;
         }
 

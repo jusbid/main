@@ -382,10 +382,10 @@ module.exports.Hotelier_User_Notification_Bidding = function (hotel_id, userId, 
 
             Notifications.create({
 
-                subject: "New hotel " + HotelName + " has been Approved",
-                message: "New hotel " + HotelName + " has Approved by your BDM",
+                subject: "New hotel " + HotelName + " has been Accepted",
+                message: "New hotel " + HotelName + " has Accepted by your BDM",
                 role: 3,
-                type: "Hotel_Approved",
+                type: "Hotel_Accepted",
                 userId: bde_id
 
             }).exec(function (err, result) {
@@ -395,13 +395,13 @@ module.exports.Hotelier_User_Notification_Bidding = function (hotel_id, userId, 
                 }).exec(function (err, BDM_Data) {
 
                     if (BDE_Data) {
-                        Notifications.create({ subject: HotelName + " has been Approved by BDM " + BDM_Data.firstname, message: HotelName + " has been Approved by BDM " + BDM_Data.firstname + ", Please cross check and verify hotel content", role: 1, type: "Admin", userId: "" }).exec(function (err, result1) { });
+                        Notifications.create({ subject: HotelName + " has been Accepted by BDM " + BDM_Data.firstname, message: HotelName + " has been Accepted by BDM " + BDM_Data.firstname + ", Please cross check and verify hotel content", role: 1, type: "Admin", userId: "" }).exec(function (err, result1) { });
                         Notifications.create({
 
-                            subject: "New hotel " + HotelName + " has been approved by you",
-                            message: "New hotel " + HotelName + " has been approved by you",
+                            subject: "New hotel " + HotelName + " has been accepted by you",
+                            message: "New hotel " + HotelName + " has been accepted by you",
                             role: 2,
-                            type: "Hotel_Approved",
+                            type: "Hotel_Accepted",
                             userId: BDM_Data.userId
 
                         }).exec(function (err, result) {

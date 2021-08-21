@@ -51,6 +51,8 @@ module.exports.Get_Excluded_Path = function (FilePath) {
 
 module.exports.GenerateMinifiedImg = function (ImagePath, Quality) {
 
+  sails.log('assets' + ImagePath, 'fileminify');
+
    Jimp.read('assets' + ImagePath)
       .then(ReadImg => {
          sails.log(ReadImg.getWidth());
@@ -72,7 +74,7 @@ module.exports.GenerateMinifiedImg = function (ImagePath, Quality) {
          return ReadImg.resize(Get_Width, Get_Height).quality(60).write('assets' + ExportPath);
       })
       .catch(err => {
-         sails.log(err);
+         sails.log(err, 'minify function');
       });
 }
 
@@ -80,6 +82,42 @@ module.exports.GenerateMinifiedImg = function (ImagePath, Quality) {
 module.exports.Get_MinPath = function (ImagePath) {
    var ExportExtract = ImagePath.split('.');
    return ExportPath = ExportExtract[0] + '_min' + '.jpg';
+}
+
+
+module.exports.GenerateMinifiedImg_New = function (ImagePath, Quality) {
+
+  sails.log('assets' + ImagePath, 'fileminify');
+
+   Jimp.read('assets' + ImagePath)
+      .then(ReadImg => {
+         sails.log(ReadImg.getWidth());
+         var Img_Width = ReadImg.getWidth();
+         var Img_Heigth = ReadImg.getHeight();
+
+         if (Img_Width > 700) {
+            var Get_Width = (Img_Width / 100) * 50;
+            var Get_Height = (Img_Heigth / 100) * 50;
+         } else if (Img_Width > 500) {
+            var Get_Width = (Img_Width / 100) * 40;
+            var Get_Height = (Img_Heigth / 100) * 40;
+         } else {
+            var Get_Width = Img_Width;
+            var Get_Height = Img_Heigth;
+         }
+
+         var ExportPath = this.Get_MinPath_New(ImagePath);
+         return ReadImg.resize(Get_Width, Get_Height).quality(60).write('assets' + ExportPath);
+      })
+      .catch(err => {
+         sails.log(err, 'minify function');
+      });
+}
+
+module.exports.Get_MinPath_New = function (ImagePath) {
+  var ExportExtract = ImagePath.split('.');
+  sails.log(ExportExtract[1], 'ExportExtract[1]');
+  return ExportPath = ExportExtract[0] + '_min.' + ExportExtract[1];
 }
 
 
@@ -444,7 +482,7 @@ module.exports.Get_Cities = function () {
 
    var AllCities_Array = {
       "AN": [
-         "Port Blair*"
+         "Port Blair"
       ],
       "AP": [
          "Adoni",
@@ -610,7 +648,7 @@ module.exports.Get_Cities = function () {
          "Naugachhia",
          "Nawada",
          "Nokha",
-         "Patna*",
+         "Patna",
          "Piro",
          "Purnia",
          "Rafiganj",
@@ -635,7 +673,7 @@ module.exports.Get_Cities = function () {
          "Warisaliganj"
       ],
       "CG": [
-         "Chandigarh*"
+         "Chandigarh"
       ],
       "CH": [
          "Ambikapur",
@@ -653,23 +691,23 @@ module.exports.Get_Cities = function () {
          "Mungeli",
          "Naila Janjgir",
          "Raigarh",
-         "Raipur*",
+         "Raipur",
          "Rajnandgaon",
          "Sakti",
          "Tilda Newra"
       ],
       "DH": [
-         "Silvassa*"
+         "Silvassa"
       ],
       "DL": [
          "Delhi",
-         "New Delhi*"
+         "New Delhi"
       ],
       "GA": [
          "Mapusa",
          "Margao",
          "Marmagao",
-         "Panaji*"
+         "Panaji"
       ],
       "GJ": [
          "Adalaj",
@@ -788,7 +826,7 @@ module.exports.Get_Cities = function () {
          "Mandi",
          "Nahan",
          "Palampur",
-         "Shimla*",
+         "Shimla",
          "Solan",
          "Sundarnagar"
       ],
@@ -800,7 +838,7 @@ module.exports.Get_Cities = function () {
          "Punch",
          "Rajauri",
          "Sopore",
-         "Srinagar*",
+         "Srinagar",
          "Udhampur"
       ],
       "JH": [
@@ -826,7 +864,7 @@ module.exports.Get_Cities = function () {
          "Patratu",
          "Phusro",
          "Ramgarh",
-         "Ranchi*",
+         "Ranchi",
          "Sahibganj",
          "Saunda",
          "Simdega",
@@ -1089,7 +1127,7 @@ module.exports.Get_Cities = function () {
          "Morshi",
          "Mukhed",
          "Mul",
-         "Greater Mumbai*",
+         "Greater Mumbai",
          "Murtijapur",
          "Nagpur",
          "Nanded-Waghala",
@@ -1179,14 +1217,14 @@ module.exports.Get_Cities = function () {
          "Yevla"
       ],
       "MN": [
-         "Imphal*",
+         "Imphal",
          "Lilong",
          "Mayang Imphal",
          "Thoubal"
       ],
       "ML": [
          "Nongstoin",
-         "Shillong*",
+         "Shillong",
          "Tura"
       ],
       "MZ": [
@@ -1196,7 +1234,7 @@ module.exports.Get_Cities = function () {
       ],
       "NL": [
          "Dimapur",
-         "Kohima*",
+         "Kohima",
          "Mokokchung",
          "Tuensang",
          "Wokha",
@@ -1210,7 +1248,7 @@ module.exports.Get_Cities = function () {
          "Baripada Town",
          "Bhadrak",
          "Bhawanipatna",
-         "Bhubaneswar*",
+         "Bhubaneswar",
          "Brahmapur",
          "Byasanagar",
          "Cuttack",
@@ -1241,7 +1279,7 @@ module.exports.Get_Cities = function () {
       "PY": [
          "Karaikal",
          "Mahe",
-         "Pondicherry*",
+         "Pondicherry",
          "Yanam"
       ],
       "PB": [
@@ -1412,7 +1450,7 @@ module.exports.Get_Cities = function () {
       "TN": [
          "Arakkonam",
          "Aruppukkottai",
-         "Chennai*",
+         "Chennai",
          "Coimbatore",
          "Erode",
          "Gobichettipalayam",
@@ -1532,7 +1570,7 @@ module.exports.Get_Cities = function () {
          "Bodhan",
          "Farooqnagar",
          "Gadwal",
-         "Hyderabad*",
+         "Hyderabad",
          "Jagtial",
          "Jangaon",
          "Kagaznagar",
@@ -1566,7 +1604,7 @@ module.exports.Get_Cities = function () {
          "Yellandu"
       ],
       "TR": [
-         "Agartala*",
+         "Agartala",
          "Belonia",
          "Dharmanagar",
          "Kailasahar",
@@ -1587,7 +1625,7 @@ module.exports.Get_Cities = function () {
          "Firozabad",
          "Fatehpur Sikri",
          "Hapur",
-         "Hardoi *",
+         "Hardoi ",
          "Jhansi",
          "Kalpi",
          "Kanpur",
@@ -1599,7 +1637,7 @@ module.exports.Get_Cities = function () {
          "Lalganj",
          "Lar",
          "Loni",
-         "Lucknow*",
+         "Lucknow",
          "Mathura",
          "Meerut",
          "Modinagar",
@@ -1964,7 +2002,7 @@ module.exports.Get_Airports = function(){
       {
         "IATA_code": "UDR",
         "ICAO_code": "VAUD",
-        "airport_name": "Dabok Airport",
+        "airport_name": "Maharana Pratap Airport",
         "city_name": "Udaipur"
       },
       {

@@ -81,9 +81,9 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'Bid not placed', err: err });
         } else {
             //----------------Notifications-------------------------------------------------------------------------------
-            NotificationsFunctions.Hotelier_User_Notification_Bidding(CreatedBid.hotel_id, CreatedBid.userId, CreatedBid.hotel_name, CreatedBid.days, BidSeries);
-            NotificationsFunctions.SendPush_Single('Bid Placed Successfully', 'Bid for reserving hotel room on ' + CreatedBid.hotel_name + ' has been placed successfully, please wait for hotelier approval', userId);
-            NotificationsFunctions.CreateFrontUserNotification('Bid Placed Successfully', 'Bid for reserving hotel room on ' + CreatedBid.hotel_name + ' has been placed successfully, please wait for hotelier approval', userId);
+           NotificationsFunctions.Hotelier_User_Notification_Bidding(CreatedBid.hotel_id, CreatedBid.userId, CreatedBid.hotel_name, CreatedBid.days, BidSeries);
+           NotificationsFunctions.SendPush_Single('Bid Placed Successfully', 'Bid for reserving hotel room on ' + CreatedBid.hotel_name + ' has been placed successfully, please wait for hotelier approval', userId);
+           NotificationsFunctions.CreateFrontUserNotification('Bid Placed Successfully', 'Bid for reserving hotel room on ' + CreatedBid.hotel_name + ' has been placed successfully, please wait for hotelier approval', userId);
             return res.send({ responseCode: 200, msg: 'Bid placed successfully', data: CreatedBid });
 
         }

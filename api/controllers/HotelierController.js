@@ -36,9 +36,11 @@ module.exports = {
 
         let HotelImagesData = await HotelImages.find({ hotel_id: req.body.id }).sort('name ASC');
 
-        let HotelRoomsData = await HotelRooms.find({ hotel_id: req.body.id });
+        let HotelRoomsData = await HotelRooms.find({ hotel_id: req.body.id }).sort('createdAt DESC');
 
+        // deprecated get logo----------------------------------------------------------------------------
         let HotelLogo = await HotelImages.findOne({ hotel_id: req.body.id, name:'Logo' });
+        //------------------------------------------------------------------------------------------------
 
         HotelData.hotel_images = HotelImagesData;
 
@@ -52,6 +54,24 @@ module.exports = {
         else {
             return res.send({ responseCode: 200, data: HotelData });
         }
+
+    },
+
+    Get_hotel_logo: async (req, res) => {
+
+        if (!req.body.hotel_id) {
+            return res.send({ responseCode: 201, msg: 'Please provide hotel id' });
+        }
+
+        let CheckLogo = await HotelImages.find({ hotel_id: req.body.hotel_id, name: "Logo" });
+
+        if (CheckLogo.length > 1) {
+            await HotelImages.destroy({ hotel_id: req.body.hotel_id, name: "Logo" });
+            return res.send({ responseCode: 200, msg: 'Logo has been removed due to conflicted images, please add again' });
+        }else{
+            return res.send({ responseCode: 201, msg: '', data:CheckLogo[0] });
+        }
+
 
     },
 
@@ -490,6 +510,163 @@ module.exports = {
     },
 
 
+
+
+    Create_Hotel_Room_New: async (req, res) => {
+
+        var FilePrefixPath = functions.Get_FileUpload_Path();
+
+        // if (!fs.existsSync('.tmp/public/images/room' + FilePrefixPath)) { fs.mkdir('.tmp/public/images/room' + FilePrefixPath,  {recursive: true}, function (err, result) { 
+
+        //     sails.log(err, result)
+        // }); }
+
+        // fs.copyFile('assets/out.png', '.tmp/public/images/room/out1.png', (err) => { if (err) { throw err; } });
+
+
+        sails.log(req.body, 'room body');
+
+        if (!req.body.hotel_id || !req.body.price || !req.body.capacity) {
+            return res.send({ responseCode: 201, msg: 'Please provide all params to create a room' });
+        }
+
+        let CheckRoomForHotel = await HotelRooms.findOne({ hotel_id: req.body.hotel_id, room_type: req.body.room_type });
+
+        if (CheckRoomForHotel) {
+            return res.send({ responseCode: 201, msg: 'Room with this name already exist for your hotel' });
+        }
+
+        let RoomImage_64 = req.body.room_64;
+        var base64Data = RoomImage_64.split(",")[1];
+  
+        if (!fs.existsSync('assets/images/room' + FilePrefixPath)) { fs.mkdir('assets/images/room' + FilePrefixPath, function (err, result) { }); }
+        if (!fs.existsSync('.tmp/public/images/room' + FilePrefixPath)) { fs.mkdir('.tmp/public/images/room' + FilePrefixPath, function (err, result) { }); }
+        var checkformat = RoomImage_64.includes("png;");
+        var format = "jpeg";
+        if(checkformat){format = "png";}
+
+        var filename = Math.random().toString(36).slice(2)+'roomimg.'+format;
+
+        var FinalPath = 'assets/images/room' + FilePrefixPath + filename;
+        var FinalPathSave = '/images/room' + FilePrefixPath + filename;
+        let room_image_link = FinalPathSave;
+        let Min_Path = functions.Get_MinPath_New(room_image_link);
+        require("fs").writeFile(FinalPath, base64Data, 'base64', function(err) {
+         if(err) console.log(err);
+            functions.GenerateMinifiedImg_New(room_image_link, 50);
+            // copyfiles to tmp--------------------------------------------
+            fs.copyFile('assets/out.png', 'assets/out.png', (err) => { if (err) { throw err; } });
+
+          let SaveData = {
+            hotel_id: req.body.hotel_id,
+            room_views: req.body.room_view,
+            room_type: req.body.room_type,
+            room_amenities: req.body.room_amenities,
+            price: req.body.price,
+            quantity: req.body.quantity,
+            capacity: req.body.capacity,
+            size: req.body.size,
+            bed_size: req.body.bed_size,
+            description: req.body.description,
+            image: FinalPathSave,
+            min_path: Min_Path
+        }
+
+        HotelRooms.create(SaveData).fetch().exec(function (err, NewRoom) {
+            if (!NewRoom) {
+                return res.send({ responseCode: 201, msg: 'Error occured while saving hotel rooms' });
+            } else {
+                return res.send({ responseCode: 200, msg: 'Hotel Room Saved' });
+            }
+        });
+        });
+    },
+
+
+
+    Update_Hotel_Room_New: async (req, res) => {
+
+        sails.log(req.body, 'room body');
+
+        if (!req.body.hotel_id || !req.body.price || !req.body.capacity || !req.body.room_id) {
+            return res.send({ responseCode: 201, msg: 'Please provide all params to update a room' });
+        }
+
+        if(req.body.room_64){
+
+
+        let RoomImage_64 = req.body.room_64;
+        var base64Data = RoomImage_64.split(",")[1];
+        var FilePrefixPath = functions.Get_FileUpload_Path();
+        if (!fs.existsSync('assets/images/room' + FilePrefixPath)) { fs.mkdir('assets/images/room' + FilePrefixPath, function (err, result) { }); }
+
+        var checkformat = RoomImage_64.includes("png;");
+        var format = "jpeg";
+        if(checkformat){format = "png";}
+
+        var filename = Math.random().toString(36).slice(2)+'roomimg.'+format;
+
+        var FinalPath = 'assets/images/room' + FilePrefixPath + filename;
+        var FinalPathSave = '/images/room' + FilePrefixPath + filename;
+        let room_image_link = FinalPathSave;
+        let Min_Path = functions.Get_MinPath_New(room_image_link);
+        require("fs").writeFile(FinalPath, base64Data, 'base64', function(err) {
+         if(err) console.log(err);
+            functions.GenerateMinifiedImg_New(room_image_link, 50);
+
+          let SaveData = {
+            hotel_id: req.body.hotel_id,
+            room_views: req.body.room_view,
+            room_type: req.body.room_type,
+            room_amenities: req.body.room_amenities,
+            price: req.body.price,
+            quantity: req.body.quantity,
+            capacity: req.body.capacity,
+            size: req.body.size,
+            bed_size: req.body.bed_size,
+            description: req.body.description,
+            image: FinalPathSave,
+            min_path: Min_Path
+        }
+
+        HotelRooms.updateOne({ id: req.body.room_id }).set(SaveData).exec(function (err, NewRoom) {
+            if (!NewRoom) {
+                return res.send({ responseCode: 201, msg: 'Error occured while updating hotel rooms' });
+            } else {
+                return res.send({ responseCode: 200, msg: 'Hotel Room updated' });
+            }
+        });
+
+        });
+
+
+    }else{
+
+
+        let SaveData = {
+            hotel_id: req.body.hotel_id,
+            room_views: req.body.room_view,
+            room_type: req.body.room_type,
+            room_amenities: req.body.room_amenities,
+            price: req.body.price,
+            quantity: req.body.quantity,
+            capacity: req.body.capacity,
+            size: req.body.size,
+            bed_size: req.body.bed_size,
+            description: req.body.description,
+        }
+
+      let UpdatedRoom = await HotelRooms.updateOne({ id: req.body.room_id }).set(SaveData);
+
+            if (!UpdatedRoom) {
+                return res.send({ responseCode: 201, msg: 'Error occured while updating hotel rooms' });
+            } else {
+                return res.send({ responseCode: 200, msg: 'Hotel Room updated' });
+            }
+
+    }
+
+    },
 
 
 
