@@ -9,7 +9,7 @@ module.exports = {
 
     Sample_SMS: async (req, res) => {
 
-        functions2.Test_Single_SMS();
+        functions2.Reject_Bid();
         return res.send({ responseCode: 202, msg: 'SMS Service Called' });
     },
 

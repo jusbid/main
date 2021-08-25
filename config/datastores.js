@@ -32,37 +32,37 @@ module.exports.datastores = {
   *                                                                          *
   ***************************************************************************/
 
-   default: {
-    adapter: 'sails-mongo',
-    url:'mongodb://jusbid_db:jusbid_password@cluster0-shard-00-00.vohwf.mongodb.net:27017,cluster0-shard-00-01.vohwf.mongodb.net:27017,cluster0-shard-00-02.vohwf.mongodb.net:27017/jusbid?ssl=true&replicaSet=atlas-nynmye-shard-0&authSource=admin&retryWrites=true&w=majority'
-    // host: 'localhost',
-    // port: 27017,
-    // database:'jusbid2'
-  },
+  //  default: {
+  //   adapter: 'sails-mongo',
+  //   url:'mongodb://jusbid_db:jusbid_password@cluster0-shard-00-00.vohwf.mongodb.net:27017,cluster0-shard-00-01.vohwf.mongodb.net:27017,cluster0-shard-00-02.vohwf.mongodb.net:27017/jusbid?ssl=true&replicaSet=atlas-nynmye-shard-0&authSource=admin&retryWrites=true&w=majority'
+  //   // host: 'localhost',
+  //   // port: 27017,
+  //   // database:'jusbid2'
+  // },
   
   
-  mongo: {
-    adapter: 'sails-mongo',
-    url:'mongodb://jusbid_db:jusbid_password@cluster0-shard-00-00.vohwf.mongodb.net:27017,cluster0-shard-00-01.vohwf.mongodb.net:27017,cluster0-shard-00-02.vohwf.mongodb.net:27017/jusbid?ssl=true&replicaSet=atlas-nynmye-shard-0&authSource=admin&retryWrites=true&w=majority'
-    // host: 'localhost',
-   }
+  // mongo: {
+  //   adapter: 'sails-mongo',
+  //   url:'mongodb://jusbid_db:jusbid_password@cluster0-shard-00-00.vohwf.mongodb.net:27017,cluster0-shard-00-01.vohwf.mongodb.net:27017,cluster0-shard-00-02.vohwf.mongodb.net:27017/jusbid?ssl=true&replicaSet=atlas-nynmye-shard-0&authSource=admin&retryWrites=true&w=majority'
+  //   // host: 'localhost',
+  //  }
   
 
 
-//  default: {
-//   adapter: 'sails-mongo',
-//   host: 'localhost',
-//   port: 27017,
-//   database:'jusbid'
-// },
+ default: {
+  adapter: 'sails-mongo',
+  host: 'localhost',
+  port: 27017,
+  database:'jusbid'
+},
 
 
-// mongo: {
-//   adapter: 'sails-mongo',
-//   host: 'localhost',
-//   port: 27017,
-//   database:'jusbid'
-//  }
+mongo: {
+  adapter: 'sails-mongo',
+  host: 'localhost',
+  port: 27017,
+  database:'jusbid'
+ }
 
 
   // default: {

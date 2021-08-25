@@ -25,6 +25,19 @@ module.exports.Set_Primary_Image = function (hotel_id, imagePath, Type) {
 };
 
 
+module.exports.Get_Room_Image_Random_Name = function () {
+ return Math.random().toString(36).slice(2)+'roomimg.';
+}
+
+module.exports.Get_Format = function (RoomImage_64) {
+  var checkformat = RoomImage_64.includes("png;");
+  var format = "jpeg";
+  if(checkformat){format = "png";}
+
+  return format;
+}
+
+
 
 module.exports.Get_DateSeq = function () {
 

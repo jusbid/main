@@ -6,8 +6,6 @@ module.exports = {
 
     Place_Bid: async (req, res) => {
 
-        
-
         let arrival = req.body.arrival;
         let depart = req.body.departure;
         let rooms = req.body.rooms;
@@ -84,7 +82,7 @@ module.exports = {
            NotificationsFunctions.Hotelier_User_Notification_Bidding(CreatedBid.hotel_id, CreatedBid.userId, CreatedBid.hotel_name, CreatedBid.days, BidSeries);
            NotificationsFunctions.SendPush_Single('Bid Placed Successfully', 'Bid for reserving hotel room on ' + CreatedBid.hotel_name + ' has been placed successfully, please wait for hotelier approval', userId);
            NotificationsFunctions.CreateFrontUserNotification('Bid Placed Successfully', 'Bid for reserving hotel room on ' + CreatedBid.hotel_name + ' has been placed successfully, please wait for hotelier approval', userId);
-            return res.send({ responseCode: 200, msg: 'Bid placed successfully', data: CreatedBid });
+           return res.send({ responseCode: 200, msg: 'Bid placed successfully', data: CreatedBid });
 
         }
 

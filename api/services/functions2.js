@@ -20,12 +20,31 @@ var CryptoJS = require("crypto-js");
 
 // }
 
+
+module.exports.Reject_Bid = function () {
+
+  let R_Bid_SMS ='Hello, Bid for hotel royal ram pratap is declined due to low bid price, please rebid and try again.\nTeam Jusbid ';
+
+  let mobileSend = '9785558507';
+  let URL = "https://push3.aclgateway.com/servlet/com.aclwireless.pushconnectivity.listeners.TextListener?appid=rudroalt&userId=rudroalt&pass=rudro_7alt&contenttype=1&from=JBDRJ&to="+mobileSend+"&text="+R_Bid_SMS+"&alert=1&selfid=true&dlrreq=true&intflag=false";
+
+  request({
+    method: 'GET',
+    url: URL,
+  }, function (error, response, body) {
+    sails.log(response, 'Test_Single_SMS');
+    if (error) {
+      sails.log(error);
+    }else{
+      sails.log( body);
+    }
+  });
+
+}
+
 module.exports.Test_Single_SMS = function () {
 
   let R_Bid_SMS ='Hello Avdesh, Your Bid for Hotel abctest of test has been tested please test.\nThank you\nTeam Jusbid';
-
-  sails.log(R_Bid_SMS, 'R_Bid_SMS');
-
 
   let mobileSend = '7412064075';
   let URL = "https://push3.aclgateway.com/servlet/com.aclwireless.pushconnectivity.listeners.TextListener?appid=rudroalt&userId=rudroalt&pass=rudro_7alt&contenttype=1&from=JBDBID&to="+mobileSend+"&text="+R_Bid_SMS+"&alert=1&selfid=true&dlrreq=true&intflag=false";

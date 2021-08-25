@@ -134,10 +134,6 @@ module.exports.routes = {
 
   'POST /paginated-hotels': { controller: 'HotelController', action: 'Get_Hotels_Admin_Paginated' },
   'GET /set-commission': { controller: 'HotelController', action: 'Set_Hotel_Commissions' },
-
-
-
-  
   
 
   //-------------------Hotel Controller Routing-------------------------------------------------------------
@@ -340,8 +336,10 @@ module.exports.routes = {
   
 
   //-----------------------------Flight Controller-----------------------------------------------------------------------------------------------------
-
+  'POST /flight-pricing': { controller: 'FlightController', action: 'Get_Flight_Pricing' },
   'POST /search-flight': { controller: 'FlightController', action: 'Search_Low_Fare_Flight' },
   'GET /airports': { controller: 'FlightController', action: 'Get_Airports' },
   'GET /airlines': { controller: 'FlightController', action: 'Get_Airlines' },
+
+  
 };

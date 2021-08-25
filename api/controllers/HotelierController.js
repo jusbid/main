@@ -516,16 +516,6 @@ module.exports = {
 
         var FilePrefixPath = functions.Get_FileUpload_Path();
 
-        // if (!fs.existsSync('.tmp/public/images/room' + FilePrefixPath)) { fs.mkdir('.tmp/public/images/room' + FilePrefixPath,  {recursive: true}, function (err, result) { 
-
-        //     sails.log(err, result)
-        // }); }
-
-        // fs.copyFile('assets/out.png', '.tmp/public/images/room/out1.png', (err) => { if (err) { throw err; } });
-
-
-        sails.log(req.body, 'room body');
-
         if (!req.body.hotel_id || !req.body.price || !req.body.capacity) {
             return res.send({ responseCode: 201, msg: 'Please provide all params to create a room' });
         }
@@ -538,24 +528,31 @@ module.exports = {
 
         let RoomImage_64 = req.body.room_64;
         var base64Data = RoomImage_64.split(",")[1];
-  
-        if (!fs.existsSync('assets/images/room' + FilePrefixPath)) { fs.mkdir('assets/images/room' + FilePrefixPath, function (err, result) { }); }
-        if (!fs.existsSync('.tmp/public/images/room' + FilePrefixPath)) { fs.mkdir('.tmp/public/images/room' + FilePrefixPath, function (err, result) { }); }
+        //create directory-------------------------------------------------------------------------------------------------------------------------------------
+        if (!fs.existsSync('assets/images/room' + FilePrefixPath)) { fs.mkdir('assets/images/room' + FilePrefixPath,  {recursive: true}, function (err, result) { sails.log(err, result, 'createdire res'); }); }
+        if (!fs.existsSync('.tmp/public/images/room' + FilePrefixPath)) { fs.mkdir('.tmp/public/images/room' + FilePrefixPath, {recursive: true}, function (err, result) { }); }
         var checkformat = RoomImage_64.includes("png;");
         var format = "jpeg";
         if(checkformat){format = "png";}
 
         var filename = Math.random().toString(36).slice(2)+'roomimg.'+format;
-
+        var TmpFinalPath = '.tmp/public/images/room' + FilePrefixPath + filename;
         var FinalPath = 'assets/images/room' + FilePrefixPath + filename;
         var FinalPathSave = '/images/room' + FilePrefixPath + filename;
         let room_image_link = FinalPathSave;
+        
         let Min_Path = functions.Get_MinPath_New(room_image_link);
+        sails.log(Min_Path, "Min_Path");
         require("fs").writeFile(FinalPath, base64Data, 'base64', function(err) {
          if(err) console.log(err);
             functions.GenerateMinifiedImg_New(room_image_link, 50);
             // copyfiles to tmp--------------------------------------------
-            fs.copyFile('assets/out.png', 'assets/out.png', (err) => { if (err) { throw err; } });
+
+            setTimeout(() => {
+                //-----------------copy assets to tmp folder---------------------------------------------
+            fs.copyFile(FinalPath, TmpFinalPath, (err) => { if (err) { throw err; } });
+            fs.copyFile('assets'+Min_Path, '.tmp/public'+Min_Path, (err) => { if (err) { throw err; } });
+            }, 2000);
 
           let SaveData = {
             hotel_id: req.body.hotel_id,
@@ -586,7 +583,7 @@ module.exports = {
 
     Update_Hotel_Room_New: async (req, res) => {
 
-        sails.log(req.body, 'room body');
+        var FilePrefixPath = functions.Get_FileUpload_Path();
 
         if (!req.body.hotel_id || !req.body.price || !req.body.capacity || !req.body.room_id) {
             return res.send({ responseCode: 201, msg: 'Please provide all params to update a room' });
@@ -594,25 +591,33 @@ module.exports = {
 
         if(req.body.room_64){
 
-
-        let RoomImage_64 = req.body.room_64;
-        var base64Data = RoomImage_64.split(",")[1];
-        var FilePrefixPath = functions.Get_FileUpload_Path();
-        if (!fs.existsSync('assets/images/room' + FilePrefixPath)) { fs.mkdir('assets/images/room' + FilePrefixPath, function (err, result) { }); }
-
-        var checkformat = RoomImage_64.includes("png;");
-        var format = "jpeg";
-        if(checkformat){format = "png";}
-
-        var filename = Math.random().toString(36).slice(2)+'roomimg.'+format;
-
-        var FinalPath = 'assets/images/room' + FilePrefixPath + filename;
-        var FinalPathSave = '/images/room' + FilePrefixPath + filename;
-        let room_image_link = FinalPathSave;
-        let Min_Path = functions.Get_MinPath_New(room_image_link);
-        require("fs").writeFile(FinalPath, base64Data, 'base64', function(err) {
-         if(err) console.log(err);
-            functions.GenerateMinifiedImg_New(room_image_link, 50);
+            let RoomImage_64 = req.body.room_64;
+            var base64Data = RoomImage_64.split(",")[1];
+            //create directory-------------------------------------------------------------------------------------------------------------------------------------
+            if (!fs.existsSync('assets/images/room' + FilePrefixPath)) { fs.mkdir('assets/images/room' + FilePrefixPath,  {recursive: true}, function (err, result) { sails.log(err, result, 'createdire res'); }); }
+            if (!fs.existsSync('.tmp/public/images/room' + FilePrefixPath)) { fs.mkdir('.tmp/public/images/room' + FilePrefixPath, {recursive: true}, function (err, result) { }); }
+            var checkformat = RoomImage_64.includes("png;");
+            var format = "jpeg";
+            if(checkformat){format = "png";}
+    
+            var filename = Math.random().toString(36).slice(2)+'roomimg.'+format;
+            var TmpFinalPath = '.tmp/public/images/room' + FilePrefixPath + filename;
+            var FinalPath = 'assets/images/room' + FilePrefixPath + filename;
+            var FinalPathSave = '/images/room' + FilePrefixPath + filename;
+            let room_image_link = FinalPathSave;
+            
+            let Min_Path = functions.Get_MinPath_New(room_image_link);
+            sails.log(Min_Path, "Min_Path");
+            require("fs").writeFile(FinalPath, base64Data, 'base64', function(err) {
+             if(err) console.log(err);
+                functions.GenerateMinifiedImg_New(room_image_link, 50);
+                // copyfiles to tmp--------------------------------------------
+    
+                setTimeout(() => {
+                    //-----------------copy assets to tmp folder---------------------------------------------
+                fs.copyFile(FinalPath, TmpFinalPath, (err) => { if (err) { throw err; } });
+                fs.copyFile('assets'+Min_Path, '.tmp/public'+Min_Path, (err) => { if (err) { throw err; } });
+                }, 2000);
 
           let SaveData = {
             hotel_id: req.body.hotel_id,
@@ -637,7 +642,7 @@ module.exports = {
             }
         });
 
-        });
+    });
 
 
     }else{
