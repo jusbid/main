@@ -111,17 +111,13 @@ module.exports = {
             type: 'boolean',
             defaultsTo: false
         },
-        // is_missed_sla_booking:{
-        //     type: 'boolean',
-        //     defaultsTo: false
-        // },
-        // is_refunded:{
-        //     type: 'boolean',
-        //     defaultsTo: false
-        // },
         refund_id: {
             type: 'string',
             required: false
+        },
+        ta_com_ispaid: {
+            type: 'boolean',
+            defaultsTo: false
         },
         status: {
             type: 'string',

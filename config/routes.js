@@ -22,7 +22,8 @@ module.exports.routes = {
   //-----------------------------------User Controller Basic Functionality Routes------------------------------------------
   'GET /create-restricted-user': { controller: 'UserController', action: 'CreateRestrictedUser' },
   'POST /create-user': { controller: 'UserController', action: 'CreateUser' },
-  'POST /create-agent': { controller: 'UserController', action: 'CreateAgent' },
+  'POST /create-agent': { controller: 'DeprecatedController', action: 'CreateAgent' },
+  'POST /onboard-agent': { controller: 'UserController', action: 'OnBoard_Agent' },
   'POST /create-agent-request': { controller: 'UserController', action: 'CreateAgentRequest' },
   'POST /create-front-user': { controller: 'UserController', action: 'CreateFrontUser' },
   'POST /user-login': { controller: 'LoginController', action: 'UserLogin' },
@@ -80,41 +81,33 @@ module.exports.routes = {
 
   //-------------------Hotel Controller Routing-------------------------------------------------------------
   'POST /onboard-hotel': { controller: 'HotelController', action: 'OnBoard_Hotel' },
-
   'POST /create-admin-hotel': { controller: 'HotelController', action: 'Create_Admin_Hotel' },
-
   'POST /create-hotel-rooms-hotelier': { controller: 'HotelController', action: 'CreateHotelRooms_Hotelier' },
   'POST /edit-hotel-rooms-hotelier': { controller: 'HotelController', action: 'EditHotelRooms_Hotelier' },
   'POST /remove-hotel-rooms-hotelier': { controller: 'HotelController', action: 'RemoveHotelRooms_Hotelier' },
   'POST /update-hotel-byid': { controller: 'HotelController', action: 'UpdateHotel' },
   'GET /get-hotels': { controller: 'HotelController', action: 'Get_Hotels' },
   'POST /get-hotels-for-admin': { controller: 'HotelController', action: 'Get_Hotels_For_Admin' },
-
   'POST /get-hotels-byid': { controller: 'HotelController', action: 'Get_Hotels_ById' },
   'POST /update-hotel-status': { controller: 'HotelController', action: 'Update_Hotel_Status' },
-
-
   'POST /get-multichain-hotels': { controller: 'LoginController', action: 'Get_MultiChain_Hotels' },
   'POST /login-multichain-hotels': { controller: 'LoginController', action: 'Login_MultiChain_Hotels' },
-  
-  
-  
   'POST /remove-hotel': { controller: 'HotelController', action: 'Remove_Hotel' },
   'GET /deactivate-hotel': { controller: 'HotelController', action: 'Change_Hotel_Status' },
   'POST /hotel-image-upload': { controller: 'HotelController', action: 'Hotel_Images_Upload' },
   'POST /hotel-logo-upload': { controller: 'HotelController', action: 'Hotel_Logo_Upload' },
   'POST /get-hotel-images': { controller: 'HotelController', action: 'Get_HotelImages' },
   'POST /delete-hotel-image': { controller: 'HotelController', action: 'Remove_HotelImage' },
-  'POST /get-bde-hotels': { controller: 'HotelController', action: 'Get_BDE_Hotels' },
+  'POST /get-bde-hotels': { controller: 'DeprecatedController', action: 'Get_BDE_Hotels' },
   'POST /get-bde-reassigned-hotels': { controller: 'HotelController', action: 'Get_BDE_ReAssigned_Hotels' },
+  'POST /get-bde-hold-hotels': { controller: 'HotelController', action: 'Get_BDE_Hold_Hotels' },
+  'POST /get-bde-rejected-hotels': { controller: 'HotelController', action: 'Get_BDE_Rejected_Hotels' },
   'POST /get-bde-hotels-up': { controller: 'HotelController', action: 'Get_BDE_Hotels_Up' },
   'GET /get-generate-now': { controller: 'HotelController', action: 'Get_GenerateSample' },
   'POST /search-bde-hotels': { controller: 'HotelController', action: 'Search_BDE_Hotels' },
   'POST /get-bdm-hotels': { controller: 'HotelController', action: 'Get_BDM_Hotels' },
   'POST /get-bdm-hotels-admin': { controller: 'HotelController', action: 'Get_BDM_Hotels_Admin' },
-
   'POST /get-bdm-assigned-hotels': { controller: 'HotelController', action: 'Get_BDM_Assigned_Hotels' },
-  // 'POST /restricted-delete-hotel': { controller: 'HotelController', action: 'Restricted_Delete_Hotel' },
   'POST /get-hotel-addon': { controller: 'HotelController', action: 'Get_Hotel_AddOn' },
   'POST /add-hotel-addon': { controller: 'HotelController', action: 'Add_Hotel_AddOn' },
   'POST /update-hotel-addon': { controller: 'HotelController', action: 'Update_Hotel_AddOn' },
@@ -124,24 +117,20 @@ module.exports.routes = {
   'POST /get-hotel-room-images': { controller: 'HotelController', action: 'Get_Hotel_Room_Images' },
   'POST /filter-hotels': { controller: 'FrontendController', action: 'Filter_Hotels' },
   'POST /get-hotel-seasonalmonths': { controller: 'HotelController', action: 'Get_Hotel_SeasonalMonths' },
-
   'POST /raise-hotel-complaint': { controller: 'HotelController', action: 'Raise_Hotel_Issue' },
   'POST /get-my-hotel-complaints': { controller: 'HotelController', action: 'Get_Hotel_Complaints' },
   'GET /get-all-hotel-complaints': { controller: 'HotelController', action: 'Get_All_Complaints' },
   'POST /restricted-remove-hotel': { controller: 'HotelController', action: 'Restricted_Remove_Hotel' },
   'GET /update-amenity': { controller: 'HotelController', action: 'Update_Amenity' },
   'POST /filtered-hotels': { controller: 'HotelController', action: 'Get_Hotels_Filtered' },
-
   'POST /paginated-hotels': { controller: 'HotelController', action: 'Get_Hotels_Admin_Paginated' },
   'GET /set-commission': { controller: 'HotelController', action: 'Set_Hotel_Commissions' },
+  'POST /get-bde-hotels-new': { controller: 'HotelController', action: 'Get_BDE_Hotels_New' },
   
-
   //-------------------Hotel Controller Routing-------------------------------------------------------------
   'POST /create-hotel-request': { controller: 'HotelRequestController', action: 'CreateHotelRequest' },
   'GET /get-hotel-request': { controller: 'HotelRequestController', action: 'GetHotelRequest' },
   'POST /send-hotel-request-tobde': { controller: 'HotelRequestController', action: 'Send_Request_BDE' },
-
-
 
   //-------------------Masters Controller Routing-----------------------------------------------------------
   'GET /get-amenities': { controller: 'MastersController', action: 'GetAmenities' },
@@ -225,9 +214,7 @@ module.exports.routes = {
   'POST /get-hotel-logo': { controller: 'HotelierController', action: 'Get_hotel_logo' },
   'POST /hotel-room': { controller: 'HotelierController', action: 'Create_Hotel_Room_New' },
   'POST /update-room': { controller: 'HotelierController', action: 'Update_Hotel_Room_New' },
-  
-
-  
+  'POST /unlink-hotel-image': { controller: 'HotelierController', action: 'Unlink_Primary_Image' },
 
   //----------------------------------Masters----------------------------------------------------------------------
 

@@ -21,9 +21,6 @@ module.exports = {
         if(lat && long){UserLatLong.lat = lat; UserLatLong.long = long}
         let Searched_hotels = await Hotel.find({ city: city, is_deleted: false,  status:'Approved' }).limit(1000);
 
-
-        sails.log(Searched_hotels.length, 'Searched_hotels');
-
         async.forEachOf(Searched_hotels, function (value, i, callback) {
             let HotelLatLong = { lat: value.latitude, long: value.longitude }
             // checj by lat long-----------------------------------------------------
@@ -31,35 +28,25 @@ module.exports = {
 
             sails.log(CheckLatLong, 'CheckLatLong');
 
-            if(CheckLatLong == true ){
-                HotelRooms.find({ hotel_id: value.id }).sort('price ASC').exec(function (err, HotelRooms) {
-                    sails.log(HotelRooms, 'HotelRooms');
-                    let this_hotel = value;
-                    if (HotelRooms.length == 0) {
-                        this_hotel.room_price = null;
-                    } else {
-                        sails.log(HotelRooms[0].price, 'HotelRooms[0].price');
-                        this_hotel.room_price = HotelRooms[0].price;
-                    }
-                    //push this hotel in processed records------------------------------------
-
-                    ProcessedHotels.push(this_hotel);
-
-                    callback();
-                });
-
-            }
-            else{
-            //mark remove hotel------------------------------------------
-            //  Searched_hotels[i].remove = true;
+            HotelRooms.find({ hotel_id: value.id }).sort('price ASC').exec(function (err, HotelRooms) {
+                sails.log(HotelRooms, 'HotelRooms');
+                let this_hotel = value;
+                if (HotelRooms.length == 0) {
+                    this_hotel.room_price = null;
+                } else {
+                    sails.log(HotelRooms[0].price, 'HotelRooms[0].price');
+                    this_hotel.room_price = HotelRooms[0].price;
+                }
+                
                 callback();
-            }
+            });
 
+            if(CheckLatLong == true ){
+                //push this hotel in processed records-----------------------------------------
+                ProcessedHotels.push(this_hotel); 
+            }
         }, function (err) {
             //---------------------------------------------------------------------------------
-            // Searched_hotels =  Searched_hotels.filter(function(valueH) {
-            //     return valueH.remove != true;
-            // });
             if(ProcessedHotels.length==0){
                 ProcessedHotels = Searched_hotels;
             }
@@ -188,7 +175,8 @@ module.exports = {
 
         //-----------------------------------------------------Set Recommended Hotels-------------------------------------------------------------
         sails.log(city_name, 'city_name');
-        var RecommendedHotels = await Hotel.find({ select: ['id', 'name', 'image', 'rating', 'city', 'status'] }).where({ city: city_name, status: 'Approved', is_deleted: false }).sort('rating DESC').limit(10);
+        var RecommendedHotels = await Hotel.find({ select: ['id', 'name', 'image', 'rating', 'city', 'status'] }).
+        where({ city: city_name, status: 'Approved', is_deleted: false }).sort('rating DESC').limit(10);
 
         //Remove Same Hotel-----------------------------------------------
 
@@ -203,7 +191,6 @@ module.exports = {
                 HotelRoomsData[i].room_images = resultImages;
                 callback();
             });
-
 
         }, function (err) {
 

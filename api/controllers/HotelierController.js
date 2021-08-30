@@ -494,7 +494,6 @@ module.exports = {
             if (req.body.status == "Accepted" && FindHotelier) {
                 sails.log(FindHotelier, 'in accept case');
                 mailer.HotelierWelcome(FindHotelier, HotelData.image);
-                //   mailer.BDE_Hotel_Approval(HotelData);
             }
             else if (req.body.status == "Accepted" || req.body.status == "OnHold") {
 
@@ -670,6 +669,23 @@ module.exports = {
             }
 
     }
+
+    },
+
+
+    Unlink_Primary_Image: async (req, res) => {
+
+        if (!req.body.hotel_id || !req.body.image_id) {
+            return res.send({ responseCode: 201, msg: 'Please provide hotel id && image id' });
+        }
+
+        let Update_Primary_Image = await Hotel.updateOne({ id: req.body.hotel_id }).set({ image: "" });
+
+        if (Update_Primary_Image) {
+            return res.send({ responseCode: 200, msg: 'Hotel primary image unlinked successfully' });
+        } else {
+            return res.send({ responseCode: 201, msg: 'Unable to unlink hotel primary image' });
+        }
 
     },
 

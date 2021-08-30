@@ -1,7 +1,6 @@
 var fs = require('fs');
 var async = require('async');
 
-
 module.exports = {
 
     Place_Bid: async (req, res) => {
@@ -26,6 +25,7 @@ module.exports = {
         }
 
         let UserData = await User.findOne({userId: userId});
+        //let HotelData = await User.findOne({select:['id', 'downfall']});
 
         let CurrentDate = new Date()
         CurrentDate = CurrentDate.toISOString().split('T')[0];
@@ -468,6 +468,7 @@ module.exports = {
         let bid_id = req.body.bid_id;
         let status = req.body.status;
         let BidsUpdated = await Bids.updateOne({ id: bid_id }).set({ status: status, reason: req.body.reason });
+        let reasonVar = req.body.reason;
         let UserData = await User.findOne({ userId: BidsUpdated.userId });
         if (!BidsUpdated) {
             return res.send({ responseCode: 201, msg: 'Bid not updated' });
@@ -478,17 +479,32 @@ module.exports = {
                     functions2.Send_Single_SMS(UserData.mobile, sms_msg);
                 }
                 else if(status == "Rejected"){
-                    //let R_Bid_SMS ='Hello Avdesh, Your Bid for Hotel abctest of test has been tested please test.\nThank you\nTeam Jusbid';
-                    let R_Bid_SMS ='Hello '+BidsUpdated.firstname+', Your Bid for Hotel '+BidsUpdated.hotel_name+' of '+BidsUpdated.price+' has been rejected please rebid.\nThank you\nTeam Jusbid';
-                    sails.log(R_Bid_SMS, 'R_Bid_SMS-------------');
-                    functions2.Send_Single_SMS(UserData.mobile, R_Bid_SMS);
+                    //-----------set first variable----------------------------------------------------------------
+                    let firstVar = "";
+                    if(reasonVar.includes("increase")){
+                        firstVar = "lower bid amount";
+                    }
+                    else if(reasonVar.includes("valid details")){
+                        firstVar = "inappropriate details";
+                    }
+                    else if(reasonVar.includes("another room")){
+                        firstVar = "selected room not available";
+                    }
+                    else if(reasonVar.includes("another hotel")){
+                        firstVar = "all rooms sold out";
+                    }
+                    else{
+                        firstVar = "hotel unavailability";
+                    }
+                    //-----------set first variable ends----------------------------------------------------------------
+                    let NewSMSContent = "Hello, Bid for hotel "+BidsUpdated.hotel_name+" is declined due to "+firstVar+", please "+reasonVar+".\nTeam Jusbid";
+                    functions2.Reject_Bid(NewSMSContent, UserData.mobile);
                 }
             }
             NotificationsFunctions.Update_Bid_Notifications(BidsUpdated);
             if (status == "Approved") { mailer.Approved_Bidding(BidsUpdated); }
             NotificationsFunctions.SendPush_Single('Bid Updated!', 'Bid for reserving hotel room on ' + BidsUpdated.hotel_name + ' have been updated with current status as ' + req.body.status + ', please check bid listing for further instructions', BidsUpdated.userId);
             return res.send({ responseCode: 200, msg: 'Bid updated successfully', data: BidsUpdated });
-
         }
     },
 

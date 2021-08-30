@@ -141,6 +141,13 @@ module.exports = {
       required:true
     },
 
+    pan:{
+      type:'string',
+      required:false
+    },
+
+    //------------------doc image link--------------
+
     aadhar_front:{
       type:'string',
       required:false
@@ -151,10 +158,27 @@ module.exports = {
       required:false
     },
 
-    pan:{
+    pan_card_img:{
       type:'string',
       required:false
     },
+
+    gst_cert:{
+      type:'string',
+      required:false
+    },
+
+    bank_proof:{
+      type:'string',
+      required:false
+    },
+
+    other:{
+      type:'string',
+      required:false
+    },
+
+    //------------------doc image link--------------
 
     gst_no:{
       type:'string',
@@ -172,13 +196,10 @@ module.exports = {
 
     passwordResetToken: {
       type: 'string',
-      description: 'A unique token used to verify the user\'s identity when recovering a password.  Expires after 1 use, or after a set amount of time has elapsed.'
     },
 
     passwordResetTokenExpiresAt: {
       type: 'number',
-      description: 'A JS timestamp (epoch ms) representing the moment when this user\'s `passwordResetToken` will expire (or 0 if the user currently has no such token).',
-      example: 1502844074211
     },
 
     userToken:{

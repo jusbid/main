@@ -232,4 +232,174 @@ module.exports = {
 
 
 
+    Get_BDE_Hotels: async (req, res) => {
+
+        var fieldsSelect = ['name', 'plot_no', 'area', 'street', 'address', 'landmark', 'city', 'state', 'country', 'rating', 'landline', 'mobile', 'bdeId', 'id', 'status', 'image'];
+
+        var HotelData = [];
+
+        var Query = {};
+        var SearchKey = req.body.SearchKey;
+        if (SearchKey && SearchKey != "") {
+            Query = { bdeId: req.body.userId, name: { startsWith: SearchKey }, is_deleted: false }
+        } else {
+            Query = { bdeId: req.body.userId, is_deleted: false }
+        }
+
+        HotelData = await Hotel.find({ select: fieldsSelect }).where(Query)
+            .sort("createdAt DESC");
+
+        if (HotelData.length == 0) {
+
+            Query = { bdeId: req.body.userId, mobile: { startsWith: SearchKey } }
+
+            HotelData = await Hotel.find(Query).sort("createdAt DESC");
+            sails.log(Query, HotelData.length, 'inside mobile case');
+        }
+
+        if (HotelData.length == 0) {
+            Query = { bdeId: req.body.userId, landline: { startsWith: SearchKey } }
+            HotelData = await Hotel.find(Query).sort("createdAt DESC");
+            sails.log(Query, HotelData.length, 'inside landline case');
+        }
+
+        if (HotelData.length == 0) {
+            Query = { bdeId: req.body.userId, city: { startsWith: SearchKey } }
+            HotelData = await Hotel.find(Query).sort("createdAt DESC");
+        }
+
+
+        async.forEachOf(HotelData, function (value, i, callback) {
+
+            let HotelFullAddress = value.plot_no + ', ' + value.area + ', ' + value.street + ', ' + value.address + ', ' + value.landmark + ', ' + value.city + ', ' + value.state;
+            HotelData[i].address = HotelFullAddress;
+
+            callback();
+
+        }, function (err) {
+
+            var HotelDataApproved = HotelData.filter(function (itm) { return itm.status == "Approved" });
+
+            var HotelDataAccepted = HotelData.filter(function (itm) { return itm.status == "Accepted" });
+
+            var HotelDataPending = HotelData.filter(function (itm) { return itm.status == "Processing" });
+
+            if (HotelDataPending.length == 0 && HotelDataApproved.length == 0) {
+                return res.send({ responseCode: 201, data: {}, msg: 'No hotel found using this criteria' });
+            }
+            else {
+                return res.send({ responseCode: 200, approved: HotelDataApproved, pending: HotelDataPending, accepted:HotelDataAccepted });
+            }
+
+        });
+
+    },
+
+
+
+    CreateAgent: async (req, res) => {
+
+        //-----sails.log(req.body, "Agent Create Body");
+
+        if (!req.body.agent_name) {
+            return res.send({ responseCode: 201, msg: 'Please provide agent name' });
+        }
+
+        let Mobile_Check = await User.findOne({
+
+        }).where({ mobile: req.body.contact_no });
+
+        //-----sails.log(Mobile_Check, 'Mobile_Check');
+
+        if (Mobile_Check) {
+            return res.send({ responseCode: 201, data: {}, msg: 'User with this mobile number already exists' });
+        }
+
+        let Email_Check = await User.findOne({
+            email: req.body.email
+        });
+
+        if (Email_Check) {
+            return res.send({ responseCode: 201, data: {}, msg: 'User with this email already exists' });
+        }
+
+        let UserCounts = await User.count();
+
+        let save_userid = req.body.agent_name.substring(0, 4) + '' + (parseInt(UserCounts) + 1);
+
+        let save_password = req.body.agent_name.substring(0, 4) + '' + parseInt(Math.random() * 1000, 10) + '' + functions.Get_DateSeq();
+
+        var FilePrefixPath = functions.Get_FileUpload_Path();
+        if (!fs.existsSync('assets/images/profile' + FilePrefixPath)) { fs.mkdir('assets/images/profile' + FilePrefixPath, function (err, result) { }); }
+
+        //-----sails.log(FilePrefixPath, 'FilePrefixPath');
+
+        var profile_img_link = '';
+
+        req.file('image').upload({
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/profile' + FilePrefixPath)
+        }, function (err, uploadedFiles3) {
+            if (err) return res.serverError(err);
+            if (uploadedFiles3.length != 0) profile_img_link = functions.Get_Excluded_Path(uploadedFiles3[0].fd);
+
+            User.create({
+                parent_bde: req.body.parent_bde,
+                password: save_password,
+                userId: save_userid,
+                email: req.body.email,
+                company_name: req.body.company_name,
+                firstname: req.body.agent_name,
+                mobile: req.body.contact_no,
+                landline: req.body.landline,
+                role: req.body.role,
+                profile_img: profile_img_link,
+                pan: req.body.pan,
+                gst_no: req.body.gst_no,
+                commission: req.body.commission,
+                zip: req.body.zip,
+                city: req.body.city,
+                state: req.body.state,
+                area: req.body.area,
+                country: req.body.country,
+                address: req.body.address,
+                gender: req.body.gender,
+                house_no: req.body.house_no,
+                dob: req.body.dob,
+                createdBy: req.body.createdBy,
+                // address keys----------------------------
+                assigned_city: req.body.assigned_city,
+                assigned_state: req.body.assigned_state
+
+            }).fetch().exec(function (err, result) {
+
+                //-----sails.log(result, "agentCreatedData");
+
+                if (!result) {
+                    return res.send({ responseCode: 201, msg: 'Agent not saved', err: err });
+                } else {
+
+                    // Add Bank Details for Agent---------------------------------------------
+
+                    let BankDetailsData = BankDetails.create({
+                        userId: save_userid,
+                        bank_account_name: req.body.bank_account_name,
+                        bank_name: req.body.bank_name,
+                        account_no: req.body.account_no,
+                        ifsc: req.body.ifsc,
+                        bank_branch: req.body.bank_branch
+                    }).fetch().exec(function (err, result) { });
+
+                    result.BankDetailsData = BankDetailsData;
+
+                    mailer.sendAgentMail(result);
+
+                    NotificationsFunctions.AgentAddNotification_BDM_BDE(req.body.parent_bde, req.body.agent_name);
+                    return res.send({ responseCode: 200, msg: 'Agent created successfully', data: result });
+                }
+            });
+        });
+    },
+
+
+
 }

@@ -112,7 +112,7 @@ module.exports = {
                 if (!result) {
                     return res.send({ responseCode: 201, msg: 'User not saved', err: err });
                 } else {
-                        mailer.sendAgentMail(result);
+                    mailer.sendAgentMail(result);
                     return res.send({ responseCode: 200, msg: 'Your account has been created successfully, please wait for approval', data: result });
                 }
             })
@@ -301,16 +301,16 @@ module.exports = {
 
         let UserId = req.body.userId;
 
-        if(!UserId){
-            return res.send({ responseCode: 201, msg: 'Please provide required parameters'});
+        if (!UserId) {
+            return res.send({ responseCode: 201, msg: 'Please provide required parameters' });
         }
 
-        let DataUser = await User.findOne({ userId: UserId});
+        let DataUser = await User.findOne({ userId: UserId });
 
         let BDMS = await User.find({ userId: DataUser.child_bdm });
 
         if (!BDMS) {
-            return res.send({ responseCode: 201, msg: 'BDM User not found'});
+            return res.send({ responseCode: 201, msg: 'BDM User not found' });
         } else {
             return res.send({ responseCode: 200, msg: 'Users fetched successfully', data: BDMS });
 
@@ -367,107 +367,155 @@ module.exports = {
 
 
 
+    OnBoard_Agent: async (req, res) => {
 
-    CreateAgent: async (req, res) => {
+        if (!req.body.agent_name || !req.body.contact_no) { return res.send({ responseCode: 201, msg: 'Please provide agent name & contact number' }); }
 
-        //-----sails.log(req.body, "Agent Create Body");
-
-        if (!req.body.agent_name) {
-            return res.send({ responseCode: 201, msg: 'Please provide agent name' });
-        }
-
-        let Mobile_Check = await User.findOne({
-
-        }).where({ mobile: req.body.contact_no });
-
-        //-----sails.log(Mobile_Check, 'Mobile_Check');
+        let Mobile_Check = await User.findOne({}).where({ mobile: req.body.contact_no });
 
         if (Mobile_Check) {
             return res.send({ responseCode: 201, data: {}, msg: 'User with this mobile number already exists' });
         }
 
-        let Email_Check = await User.findOne({
-            email: req.body.email
-        });
-
-        if (Email_Check) {
-            return res.send({ responseCode: 201, data: {}, msg: 'User with this email already exists' });
-        }
-
+        let Email_Check = await User.findOne({ email: req.body.email });
+        if (Email_Check) { return res.send({ responseCode: 201, data: {}, msg: 'User with this email already exists' }); }
         let UserCounts = await User.count();
 
-        let save_userid = req.body.agent_name.substring(0, 4) + '' + (parseInt(UserCounts) + 1);
+        //----------------------generate user id and password---------------------------------------------------------------------------------------------
+        let randomString = (Math.random() + 1).toString(36).substring(8);
+        let save_userid = req.body.agent_name.substring(0, 4) + randomString + (parseInt(UserCounts) + 1);
+        if (save_userid) { save_userid = save_userid.replace(/ /g, "j"); }
+        let save_password = req.body.agent_name.substring(0, 4) + randomString + parseInt(Math.random() * 1000, 10) + '' + functions.Get_DateSeq();
+        if (save_password) { save_password = save_password.replace(/ /g, "j"); }
 
-        let save_password = req.body.agent_name.substring(0, 4) + '' + parseInt(Math.random() * 1000, 10) + '' + functions.Get_DateSeq();
+        //upload multiple documents----------------------------------------------------------------------------------------------------------------------------
+        var aadhar_front_link = '';
+        var aadhar_back_link = '';
+        var gst_cert = '';
+        var bank_proof = '';
+        var other = '';
+        var pan_card_img = '';
 
         var FilePrefixPath = functions.Get_FileUpload_Path();
-        if (!fs.existsSync('assets/images/profile' + FilePrefixPath)) { fs.mkdir('assets/images/profile' + FilePrefixPath, function (err, result) { }); }
+        if (!fs.existsSync('assets/images/documents' + FilePrefixPath)) { fs.mkdir('assets/images/documents' + FilePrefixPath, function (err, result) { }); }
 
-        //-----sails.log(FilePrefixPath, 'FilePrefixPath');
+        req.file('pan_card_img').upload({
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/documents' + FilePrefixPath)
+        }, function (err, uploadedFiles6) {
+            if (err) return res.serverError(err);
+            if (uploadedFiles6.length != 0) pan_card_img = functions.Get_Excluded_Path(uploadedFiles6[0].fd);
 
-        var profile_img_link = '';
+            sails.log(pan_card_img, 'pan_card_img');
 
-        req.file('image').upload({
-            dirname: require('path').resolve(sails.config.appPath, 'assets/images/profile' + FilePrefixPath)
+        });
+
+        req.file('aadhar_back').upload({
+            maxBytes: MaxBytesUpload_UserFile,
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/documents' + FilePrefixPath)
+        }, function (err, uploadedFiles2) {
+            if (err) return res.serverError(err);
+            if (uploadedFiles2.length != 0) aadhar_back_link = functions.Get_Excluded_Path(uploadedFiles2[0].fd);
+        });
+
+        req.file('gst_cert').upload({
+            maxBytes: MaxBytesUpload_UserFile,
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/documents' + FilePrefixPath)
         }, function (err, uploadedFiles3) {
             if (err) return res.serverError(err);
-            if (uploadedFiles3.length != 0) profile_img_link = functions.Get_Excluded_Path(uploadedFiles3[0].fd);
+            if (uploadedFiles3.length != 0) gst_cert = functions.Get_Excluded_Path(uploadedFiles3[0].fd);
+        });
 
-            User.create({
-                parent_bde: req.body.parent_bde,
-                password: save_password,
-                userId: save_userid,
-                email: req.body.email,
-                company_name: req.body.company_name,
-                firstname: req.body.agent_name,
-                mobile: req.body.contact_no,
-                landline: req.body.landline,
-                role: req.body.role,
-                profile_img: profile_img_link,
-                pan: req.body.pan,
-                gst_no: req.body.gst_no,
-                commission: req.body.commission,
-                zip: req.body.zip,
-                city: req.body.city,
-                state: req.body.state,
-                area: req.body.area,
-                country: req.body.country,
-                address: req.body.address,
-                gender: req.body.gender,
-                house_no: req.body.house_no,
-                dob: req.body.dob,
-                createdBy: req.body.createdBy,
-                // address keys----------------------------
-                assigned_city: req.body.assigned_city,
-                assigned_state: req.body.assigned_state
+        req.file('bank_proof').upload({
+            maxBytes: MaxBytesUpload_UserFile,
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/documents' + FilePrefixPath)
+        }, function (err, uploadedFiles4) {
+            if (err) return res.serverError(err);
+            if (uploadedFiles4.length != 0) bank_proof = functions.Get_Excluded_Path(uploadedFiles4[0].fd);
+        });
 
-            }).fetch().exec(function (err, result) {
+        req.file('other').upload({
+            maxBytes: MaxBytesUpload_UserFile,
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/documents' + FilePrefixPath)
+        }, function (err, uploadedFiles5) {
+            if (err) return res.serverError(err);
+            if (uploadedFiles5.length != 0) other = functions.Get_Excluded_Path(uploadedFiles5[0].fd);
+        });
+        //-------------------------------------------------------------------------------------------------------------------------------------------------
 
-                //-----sails.log(result, "agentCreatedData");
 
-                if (!result) {
-                    return res.send({ responseCode: 201, msg: 'Agent not saved', err: err });
-                } else {
+        req.file('aadhar_front').upload({
+            maxBytes: MaxBytesUpload_UserFile,
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/documents' + FilePrefixPath)
+        }, function (err, uploadedFiles1) {
 
-                    // Add Bank Details for Agent---------------------------------------------
+            if (err) return res.serverError(err);
+            if (uploadedFiles1.length != 0) aadhar_front_link = functions.Get_Excluded_Path(uploadedFiles1[0].fd);
 
-                    let BankDetailsData = BankDetails.create({
-                        userId: save_userid,
-                        bank_account_name: req.body.bank_account_name,
-                        bank_name: req.body.bank_name,
-                        account_no: req.body.account_no,
-                        ifsc: req.body.ifsc,
-                        bank_branch: req.body.bank_branch
-                    }).fetch().exec(function (err, result) { });
+            setTimeout(() => {
 
-                    result.BankDetailsData = BankDetailsData;
+                User.create({
+                    parent_bde: req.body.parent_bde,
+                    password: save_password,
+                    userId: save_userid,
+                    email: req.body.email,
+                    company_name: req.body.company_name,
+                    firstname: req.body.agent_name,
+                    mobile: req.body.contact_no,
+                    landline: req.body.landline,
+                    role: req.body.role,
+                    pan: req.body.pan,
+                    gst_no: req.body.gst_no,
+                    commission: req.body.commission,
+                    zip: req.body.zip,
+                    city: req.body.city,
+                    state: req.body.state,
+                    area: req.body.area,
+                    country: req.body.country,
+                    address: req.body.address,
+                    gender: req.body.gender,
+                    house_no: req.body.house_no,
+                    dob: req.body.dob,
+                    createdBy: req.body.createdBy,
+                    role: 4,
+                    // address keys----------------------------
+                    assigned_city: req.body.assigned_city,
+                    assigned_state: req.body.assigned_state,
+                    //-------documents--------------------
+                    aadhar_front: aadhar_front_link,
+                    aadhar_back: aadhar_back_link,
+                    gst_cert: gst_cert,
+                    bank_proof: bank_proof,
+                    pan_card_img: pan_card_img,
+                    other: other
 
-                    mailer.sendAgentMail(result);
+                }).fetch().exec(function (err, result) {
 
-                    NotificationsFunctions.AgentAddNotification_BDM_BDE(req.body.parent_bde, req.body.agent_name);
-                    return res.send({ responseCode: 200, msg: 'Agent created successfully', data: result });
-                }
-            });
+                    if (!result) {
+                        return res.send({ responseCode: 201, msg: 'Agent not saved', err: err });
+                    } else {
+
+                        // Add Bank Details for Agent---------------------------------------------
+
+                        let BankDetailsData = BankDetails.create({
+                            userId: save_userid,
+                            bank_account_name: req.body.bank_account_name,
+                            bank_name: req.body.bank_name,
+                            account_no: req.body.account_no,
+                            ifsc: req.body.ifsc,
+                            bank_branch: req.body.bank_branch
+                        }).fetch().exec(function (err, result) { });
+
+                        result.BankDetailsData = BankDetailsData;
+
+                        //mailer.sendAgentMail(result);
+
+                        NotificationsFunctions.AgentAddNotification_BDM_BDE(req.body.parent_bde, req.body.agent_name);
+                        return res.send({ responseCode: 200, msg: 'Agent created successfully', data: result });
+                    }
+                });
+
+            }, 3000);
+
         });
     },
 
@@ -880,7 +928,7 @@ module.exports = {
                 return res.send({ responseCode: 201, data: {}, msg: 'BDM under this senior BDM not found, please update user and try again' });
             }
             ParentBDM = Get_User_Data.child_bdm;
-            
+
         } else {
             ParentBDM = userId;
         }
@@ -947,7 +995,7 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'BDM not found using this user ID' });
         }
 
-       
+
         let userId = req.body.userId;
         if (!userId) {
             return res.send({ responseCode: 201, data: {}, msg: 'userId parameter not found' });
@@ -968,8 +1016,6 @@ module.exports = {
     },
 
     Search_TravelAgents_For_BDM: async (req, res) => {
-
-        sails.log(req.body, 'search ');
 
         let userId = req.body.userId;
 
@@ -1041,13 +1087,13 @@ module.exports = {
 
     Restricted_Delete_User: async (req, res) => {
 
-        if(!req.body.userId || !req.body.password || !req.body.delete_userId){
+        if (!req.body.userId || !req.body.password || !req.body.delete_userId) {
             return res.send({ responseCode: 201, msg: 'Please provide required parameters' });
         }
 
-        let SystemUserGet = await SystemUser.findOne({ userId: req.body.userId, password: req.body.password  });
+        let SystemUserGet = await SystemUser.findOne({ userId: req.body.userId, password: req.body.password });
 
-        if(!SystemUserGet){return res.send({ responseCode: 201, msg: 'You do not have permissions to remove this user' }); }
+        if (!SystemUserGet) { return res.send({ responseCode: 201, msg: 'You do not have permissions to remove this user' }); }
 
         if (!req.body.userId) { return res.send({ responseCode: 201, msg: 'User id not found' }); }
         await User.destroyOne({ userId: req.body.delete_userId });

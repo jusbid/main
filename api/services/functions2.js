@@ -102,6 +102,25 @@ module.exports.Send_Single_SMS = function (mobile_no, message) {
   }
 
 
+  module.exports.Reject_Bid_SMS = function (R_Bid_SMS, mobileSend) {
+
+    let URL = "https://push3.aclgateway.com/servlet/com.aclwireless.pushconnectivity.listeners.TextListener?appid=rudroalt&userId=rudroalt&pass=rudro_7alt&contenttype=1&from=JBDRJ&to="+mobileSend+"&text="+R_Bid_SMS+"&alert=1&selfid=true&dlrreq=true&intflag=false";
+  
+    request({
+      method: 'GET',
+      url: URL,
+    }, function (error, response, body) {
+      sails.log(response, 'Test_Single_SMS');
+      if (error) {
+        sails.log(error);
+      }else{
+        sails.log( body);
+      }
+    });
+  
+  }
+
+
   module.exports.Send_Single_SMS_Test = function () {
 
     let mobileSend = "9785558507";

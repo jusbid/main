@@ -940,7 +940,7 @@ module.exports = {
 
 
 
-    Get_BDE_Hotels: async (req, res) => {
+    Get_BDE_Hotels_New: async (req, res) => {
 
         var fieldsSelect = ['name', 'plot_no', 'area', 'street', 'address', 'landmark', 'city', 'state', 'country', 'rating', 'landline', 'mobile', 'bdeId', 'id', 'status', 'image'];
 
@@ -958,17 +958,13 @@ module.exports = {
             .sort("createdAt DESC");
 
         if (HotelData.length == 0) {
-
             Query = { bdeId: req.body.userId, mobile: { startsWith: SearchKey } }
-
             HotelData = await Hotel.find(Query).sort("createdAt DESC");
-            sails.log(Query, HotelData.length, 'inside mobile case');
         }
 
         if (HotelData.length == 0) {
             Query = { bdeId: req.body.userId, landline: { startsWith: SearchKey } }
             HotelData = await Hotel.find(Query).sort("createdAt DESC");
-            sails.log(Query, HotelData.length, 'inside landline case');
         }
 
         if (HotelData.length == 0) {
@@ -986,7 +982,7 @@ module.exports = {
 
         }, function (err) {
 
-            var HotelDataApproved = HotelData.filter(function (itm) { return itm.status == "Approved" || itm.status == "Accepted" });
+            var HotelDataApproved = HotelData.filter(function (itm) { return itm.status == "Approved" });
 
             var HotelDataAccepted = HotelData.filter(function (itm) { return itm.status == "Accepted" });
 
@@ -1024,6 +1020,63 @@ module.exports = {
 
             if (HotelData.length == 0) {
                 return res.send({ responseCode: 201, data: {}, msg: 'No hotel found for reassignment' });
+            }
+            else {
+                return res.send({ responseCode: 200, data: HotelData });
+            }
+
+        });
+
+    },
+
+
+    Get_BDE_Hold_Hotels: async (req, res) => {
+
+        var fieldsSelect = ['name', 'plot_no', 'area', 'street', 'address', 'landmark', 'city', 'state', 'rating', 'landline', 'bdeId', 'id', 'status', 'image', 'statusNote'];
+
+        var HotelData = [];
+
+        HotelData = await Hotel.find({ select: fieldsSelect }).where({ bdeId: req.body.userId, status: 'OnHold', is_deleted: false }).sort("createdAt DESC");
+
+        async.forEachOf(HotelData, function (value, i, callback) {
+
+            let HotelFullAddress = value.plot_no + ', ' + value.area + ', ' + value.street + ', ' + value.address + ', ' + value.landmark + ', ' + value.city + ', ' + value.state;
+            HotelData[i].address = HotelFullAddress;
+
+            callback();
+
+        }, function (err) {
+
+            if (HotelData.length == 0) {
+                return res.send({ responseCode: 201, data: {}, msg: 'No hotel found for status hold' });
+            }
+            else {
+                return res.send({ responseCode: 200, data: HotelData });
+            }
+
+        });
+
+    },
+
+    Get_BDE_Rejected_Hotels: async (req, res) => {
+
+        var fieldsSelect = ['name', 'plot_no', 'area', 'street', 'address', 'landmark', 'city', 'state', 'rating', 'landline', 'bdeId', 'id', 'status', 'image', 'statusNote'];
+
+        var HotelData = [];
+
+        HotelData = await Hotel.find({ select: fieldsSelect }).where({ bdeId: req.body.userId, status: ['Declined', 'Rejected'], is_deleted: false }).sort("createdAt DESC");
+
+        async.forEachOf(HotelData, function (value, i, callback) {
+
+            let HotelFullAddress = value.plot_no + ', ' + value.area + ', ' + value.street + ', ' + value.address + ', ' + value.landmark + ', ' + value.city + ', ' + value.state;
+            HotelData[i].address = HotelFullAddress;
+
+            callback();
+
+        }, function (err) {
+
+            if (HotelData.length == 0) {
+                return res.send({ responseCode: 201, data: {}, msg: 'No rejected hotels found' });
             }
             else {
                 return res.send({ responseCode: 200, data: HotelData });
@@ -1548,25 +1601,9 @@ module.exports = {
 
         let DesHotelImage = await HotelImages.destroyOne({ id: image_id, hotel_id: HotelId });
 
-        if (DesHotelImage) {
-            return res.send({ responseCode: 200, msg: 'Hotel image removed successfully' });
-        } else {
-            return res.send({ responseCode: 201, msg: 'Hotel image not removed, please try again..' });
-        }
+        return res.send({ responseCode: 200, msg: 'Hotel image removed successfully' });
+
     },
-
-
-    // Restricted_Delete_Hotel: async (req, res) => {
-    //     let HotelRemoved = await Hotel.destroyOne({ id: req.body.hotel_id });
-
-    //     if (!HotelRemoved) {
-    //         return res.send({ responseCode: 201, msg: 'hotel not Removed' });
-
-    //     } else {
-    //         return res.send({ responseCode: 200, msg: 'hotel Removed' });
-
-    //     }
-    // },
 
     Get_Hotel_AddOn: async (req, res) => {
 

@@ -1354,6 +1354,7 @@ module.exports.Get_Cities = function () {
       "RJ": [
          "Ajmer",
          "Alwar",
+         "Beawar",
          "Bikaner",
          "Bharatpur",
          "Bhilwara",
@@ -2724,7 +2725,7 @@ module.exports.Get_HotelCategories_ARR = function () {
 module.exports.HotelViews = function () {
 
    var HotelViews = [
-      "Sea View", "Lake View", "Mountain View", "Valley View", "River Front View", "Airport View"
+      "Sea View", "Lake View", "Mountain View", "Valley View", "River Front View", "Airport View", "Nature View", "City View"
    ];
 
    return HotelViews;
@@ -2733,11 +2734,11 @@ module.exports.HotelViews = function () {
 
 module.exports.RoomViews = function () {
 
-   var HotelViews = [
-      "Sea View", "Lake View", "Mountain View", "Valley View", "River Front View", "Airport View", "City View"
+   var RoomViews = [
+      "Sea View", "Lake View", "Mountain View", "Valley View", "River Front View", "Airport View", "City View", "Nature View"
    ];
 
-   return HotelViews;
+   return RoomViews;
 
 };
 
