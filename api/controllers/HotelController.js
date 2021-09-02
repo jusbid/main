@@ -209,7 +209,9 @@ module.exports = {
             // new keys----------------------------
             hotel_views: req.body.hotel_views,
             seasonal_months: req.body.seasonal_months,
-            star_rating: req.body.star_rating
+            star_rating: req.body.star_rating,
+            is_multichain: req.body.is_multichain,
+            secondary_email: req.body.secondary_email
 
         }).fetch();
 
@@ -503,7 +505,9 @@ module.exports = {
             //new key-=----------------------------------------------------------------
             threesixty_view: req.body.threesixty_view,
             commission: req.body.commission,
-            star_rating: req.body.star_rating
+            star_rating: req.body.star_rating,
+            secondary_email: req.body.secondary_email,
+            is_multichain: req.body.is_multichain
 
         });
 
@@ -592,7 +596,7 @@ module.exports = {
 
     Get_Hotels_Admin_Paginated: async (req, res) => {
 
-        let SelectFields = ['id', 'name', 'bdeId', 'email', 'mobile', 'city', 'state', 'status', 'createdAt', 'updatedAt', 'is_deleted'];
+        let SelectFields = ['id', 'name', 'bdeId', 'email', 'mobile', 'city', 'state', 'status', 'createdAt', 'updatedAt', 'is_deleted', 'is_multichain'];
 
         let userId = req.body.userId;
         let status;
@@ -1382,7 +1386,7 @@ module.exports = {
 
             functions.Set_Primary_Image(req.body.hotel_id, Min_Path, ImageName);
 
-            //sails.log(req.body.hotel_id, ImageName, hotel_image_link, Min_Path);
+            functions.Upload_To_Temp(hotel_image_link, Min_Path, '/images/hotel' + FilePrefixPath);
 
             HotelImages.create({
 

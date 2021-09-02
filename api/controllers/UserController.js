@@ -519,6 +519,101 @@ module.exports = {
         });
     },
 
+    Edit_OnBoard_Agent: async (req, res) => {
+
+        if ( !req.body.userId) { return res.send({ responseCode: 201, msg: 'Please provide user Id' }); }
+
+        let Mobile_Check = await User.findOne({userId: req.body.userId});
+
+        if (!Mobile_Check) {
+            return res.send({ responseCode: 201, data: {}, msg: 'User with this id does not exists' });
+        }
+
+        var aadhar_front_link = undefined;
+        var aadhar_back_link = undefined;
+        var gst_cert = undefined;
+        var bank_proof = undefined;
+        var other = undefined;
+        var pan_card_img = undefined;
+
+        var FilePrefixPath = functions.Get_FileUpload_Path();
+        if (!fs.existsSync('assets/images/documents' + FilePrefixPath)) { fs.mkdir('assets/images/documents' + FilePrefixPath, function (err, result) { }); }
+
+        req.file('pan_card_img').upload({
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/documents' + FilePrefixPath)
+        }, function (err, uploadedFiles6) {
+            if (err) return res.serverError(err);
+            if (uploadedFiles6.length != 0) pan_card_img = functions.Get_Excluded_Path(uploadedFiles6[0].fd);
+            sails.log(pan_card_img, 'pan_card_img');
+        });
+
+        req.file('aadhar_back').upload({
+            maxBytes: MaxBytesUpload_UserFile,
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/documents' + FilePrefixPath)
+        }, function (err, uploadedFiles2) {
+            if (err) return res.serverError(err);
+            if (uploadedFiles2.length != 0) aadhar_back_link = functions.Get_Excluded_Path(uploadedFiles2[0].fd);
+        });
+
+        req.file('gst_cert').upload({
+            maxBytes: MaxBytesUpload_UserFile,
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/documents' + FilePrefixPath)
+        }, function (err, uploadedFiles3) {
+            if (err) return res.serverError(err);
+            if (uploadedFiles3.length != 0) gst_cert = functions.Get_Excluded_Path(uploadedFiles3[0].fd);
+        });
+
+        req.file('bank_proof').upload({
+            maxBytes: MaxBytesUpload_UserFile,
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/documents' + FilePrefixPath)
+        }, function (err, uploadedFiles4) {
+            if (err) return res.serverError(err);
+            if (uploadedFiles4.length != 0) bank_proof = functions.Get_Excluded_Path(uploadedFiles4[0].fd);
+        });
+
+        req.file('other').upload({
+            maxBytes: MaxBytesUpload_UserFile,
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/documents' + FilePrefixPath)
+        }, function (err, uploadedFiles5) {
+            if (err) return res.serverError(err);
+            if (uploadedFiles5.length != 0) other = functions.Get_Excluded_Path(uploadedFiles5[0].fd);
+        });
+        //-------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+        req.file('aadhar_front').upload({
+            maxBytes: MaxBytesUpload_UserFile,
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/documents' + FilePrefixPath)
+        }, function (err, uploadedFiles1) {
+
+            if (err) return res.serverError(err);
+            if (uploadedFiles1.length != 0) aadhar_front_link = functions.Get_Excluded_Path(uploadedFiles1[0].fd);
+
+            setTimeout(() => {
+
+                User.updateOne({ userId: req.body.userId }).set({
+                    pan: req.body.pan,
+                    gst_no: req.body.gst_no,
+                    // address keys----------------------------
+                    aadhar_front: aadhar_front_link,
+                    aadhar_back: aadhar_back_link,
+                    gst_cert: gst_cert,
+                    bank_proof: bank_proof,
+                    pan_card_img: pan_card_img,
+                    other: other
+                }).fetch().exec(function (err, result) {
+                    if (!result) {
+                        return res.send({ responseCode: 201, msg: 'Agent not saved', err: err });
+                    } else {
+                        return res.send({ responseCode: 200, msg: 'Agent updated successfully', data: result });
+                    }
+                });
+
+            }, 3000);
+
+        });
+    },
+
 
     CreateAgentRequest: async (req, res) => {
 

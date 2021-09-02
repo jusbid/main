@@ -177,18 +177,13 @@ module.exports = {
     CreateHotelRooms: async (req, res) => {
 
         var DataBody = req.body.rooms;
-
         DataBody = DataBody.replace(/(')/g, '"');
         DataBody = JSON.parse(DataBody);
-
         var Hotel_Id = req.body.hotel_id;
-
         if (!req.body.hotel_id) {
             return res.send({ responseCode: 201, msg: 'Please provide hotel ID to save room & other details' });
         }
-
         sails.log(DataBody, 'DataBody');
-
         async.eachOfSeries(DataBody, function (RoomRecord, key, callback) {
 
             if (RoomRecord) {
@@ -212,14 +207,10 @@ module.exports = {
                         sails.log('RoomRecord already exists');
                         callback();
                     }
-
                 });
-
-
             } else {
                 callback();
             }
-
         }, function (err) {
             if (err) {
                 return res.send({ responseCode: 201, msg: 'Error occured while saving hotel rooms' });
@@ -227,7 +218,6 @@ module.exports = {
                 return res.send({ responseCode: 200, msg: 'Hotel Rooms Saving is in progress', data: [] });
             }
         });
-
     },
 
 
@@ -278,7 +268,7 @@ module.exports = {
 
         }, function (err) {
 
-            var HotelDataApproved = HotelData.filter(function (itm) { return itm.status == "Approved" });
+            var HotelDataApproved = HotelData.filter(function (itm) { return itm.status == "Approved" ||  itm.status == "Accepted"});
 
             var HotelDataAccepted = HotelData.filter(function (itm) { return itm.status == "Accepted" });
 

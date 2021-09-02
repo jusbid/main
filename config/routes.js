@@ -24,6 +24,7 @@ module.exports.routes = {
   'POST /create-user': { controller: 'UserController', action: 'CreateUser' },
   'POST /create-agent': { controller: 'DeprecatedController', action: 'CreateAgent' },
   'POST /onboard-agent': { controller: 'UserController', action: 'OnBoard_Agent' },
+  'POST /edit-onboard-agent': { controller: 'UserController', action: 'Edit_OnBoard_Agent' },
   'POST /create-agent-request': { controller: 'UserController', action: 'CreateAgentRequest' },
   'POST /create-front-user': { controller: 'UserController', action: 'CreateFrontUser' },
   'POST /user-login': { controller: 'LoginController', action: 'UserLogin' },
@@ -197,7 +198,6 @@ module.exports.routes = {
   'POST /update-booking-room-status': { controller: 'BidController', action: 'Update_Booking_Room_Status' },
 
   //-------------------Hotelier Controller----------------------------------------------------------------
-
   'POST /hotelier-counts': { controller: 'HotelierController', action: 'Hotelier_Dashboard_Counts' },
   'POST /get-my-hotel': { controller: 'HotelierController', action: 'Get_My_Hotel' },
   'POST /save-hotel-faq': { controller: 'HotelierController', action: 'Save_FAQ' },

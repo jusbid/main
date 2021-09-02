@@ -228,12 +228,12 @@ Login_MultiChain_Hotels: async (req, res) => {
         return res.send({ responseCode: 200, data: UserData, msg: 'Please provide required parameters..' });
     }
 
-    let Hotels = await User.findOne({hotel_id: req.body.hotel_id, password: req.body.password});
+    let Hotelier = await User.findOne({hotel_id: req.body.hotel, password: req.body.password});
 
-    if (Hotels) {
-        return res.send({ responseCode: 200, data: Hotels, msg: 'Hotels Fetched!' });
+    if (Hotelier) {
+        return res.send({ responseCode: 200, data: Hotelier, msg: 'Hotels Fetched!' });
     } else {
-        return res.send({ responseCode: 201, data: Hotels, msg: 'Unable to find group hotels using this email address!' });
+        return res.send({ responseCode: 201, data: Hotelier, msg: 'Unable to find group hotels using this email address!' });
     }
 
 },

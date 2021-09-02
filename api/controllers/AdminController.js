@@ -1,5 +1,6 @@
 var fs = require('fs');
 var async = require('async');
+const PastBDE = require('../models/PastBDE');
 
 module.exports = {
 
@@ -148,8 +149,6 @@ module.exports = {
         })
     },
 
-
-
     Get_My_BDE: async (req, res) => {
         if (!req.body.userId) {
             return res.send({ responseCode: 201, msg: "Please provide user ID" });
@@ -160,6 +159,39 @@ module.exports = {
         } else {
             return res.send({ responseCode: 200, msg: "BDE fetched", data: MyBDE });
         }
+    },
+
+    Update_Hotel_Bde: async (req, res) => {
+
+        if (!req.body.bde_id && !req.body.hotel_id) {
+            return res.send({ responseCode: 201, msg: "Please provide bde ID & hotel Id" });
+        }
+
+        var hotel_data = await Hotel.findOne({ id: req.body.hotel_id });
+
+        if(hotel_data){
+
+            await PastBDE.create({
+                hotel_id: hotel_id,
+                bde_id: hotel_data.bdeId,
+                reason: req.body.reason
+            });
+
+            let hotel_data = await Hotel.updateOne({ id: req.body.hotel_id }).set({ bdeId:req.body.bde_id });
+
+            if(hotel_data){
+                return res.send({ responseCode: 200, msg: "Bde updated successfully" });
+
+            }else{
+                return res.send({ responseCode: 201, msg: "unable to update bde for this hotel" });
+
+            }
+
+
+        }else{
+            return res.send({ responseCode: 201, msg: "hotel not found using this ID" });
+        }
+
     },
 
 

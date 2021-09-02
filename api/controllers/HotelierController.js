@@ -478,7 +478,7 @@ module.exports = {
                 role: 5,
                 userId: save_userid,
                 password: save_password,
-                status: 'Accepted',
+                status: 'Approved',
                 statusNote: req.body.statusNote
             }).fetch();
 
