@@ -171,6 +171,11 @@ module.exports.routes = {
   'POST /get-all-bdm-hotels': { controller: 'AdminController', action: 'Get_All_BDM_Hotels' },
   'POST /get-bdm-hotels-admin': { controller: 'AdminController', action: 'Get_BDM_Hotels_Admin' },
   'POST /get-mybde-travelagents': { controller: 'AdminController', action: 'Get_TravelAgents_BDM' },
+  'POST /update-hotel-bde': { controller: 'AdminController', action: 'Update_Hotel_Bde' },
+  'POST /update-all-hotels-tobde': { controller: 'AdminController', action: 'Update_All_Hotel_toBde' },
+  
+
+  
 
   //-------------------Bid / Booking Controller----------------------------------------------------------------
   'POST /place-bid': { controller: 'BidController', action: 'Place_Bid' },
@@ -215,7 +220,7 @@ module.exports.routes = {
   'POST /hotel-room': { controller: 'HotelierController', action: 'Create_Hotel_Room_New' },
   'POST /update-room': { controller: 'HotelierController', action: 'Update_Hotel_Room_New' },
   'POST /unlink-hotel-image': { controller: 'HotelierController', action: 'Unlink_Primary_Image' },
-
+  'POST /update-hotel-imagename': { controller: 'HotelierController', action: 'Update_Hotel_ImageName' },
   //----------------------------------Masters----------------------------------------------------------------------
 
   'POST /add-room-category': { controller: 'MastersController', action: 'Save_RoomCategory' },

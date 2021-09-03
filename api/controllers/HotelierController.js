@@ -690,6 +690,21 @@ module.exports = {
     },
 
 
+    Update_Hotel_ImageName: async (req, res) => {
+
+        if (!req.body.image_name || !req.body.image_id) {
+            return res.send({ responseCode: 201, msg: 'Please provide imageId && imageName' });
+        }
+
+        let UpdateImageName = await HotelImages.updateOne({ id: req.body.image_id }).set({ name:req.body.image_name });
+
+        if (UpdateImageName) {
+            return res.send({ responseCode: 200, msg: 'Hotel image name changed successfully' });
+        } else {
+            return res.send({ responseCode: 201, msg: 'Unable to change hotel image name' });
+        }
+
+    },
 
 
 

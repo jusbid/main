@@ -1,6 +1,5 @@
 var fs = require('fs');
 var async = require('async');
-const PastBDE = require('../models/PastBDE');
 
 module.exports = {
 
@@ -166,33 +165,49 @@ module.exports = {
         if (!req.body.bde_id && !req.body.hotel_id) {
             return res.send({ responseCode: 201, msg: "Please provide bde ID & hotel Id" });
         }
-
         var hotel_data = await Hotel.findOne({ id: req.body.hotel_id });
-
         if(hotel_data){
-
             await PastBDE.create({
-                hotel_id: hotel_id,
+                hotel_id: hotel_data.id,
                 bde_id: hotel_data.bdeId,
                 reason: req.body.reason
             });
-
-            let hotel_data = await Hotel.updateOne({ id: req.body.hotel_id }).set({ bdeId:req.body.bde_id });
-
-            if(hotel_data){
+            let hotel_data_update = await Hotel.updateOne({ id: req.body.hotel_id }).set({ bdeId:req.body.bde_id });
+            if(hotel_data_update){
                 return res.send({ responseCode: 200, msg: "Bde updated successfully" });
-
             }else{
                 return res.send({ responseCode: 201, msg: "unable to update bde for this hotel" });
-
             }
-
-
         }else{
             return res.send({ responseCode: 201, msg: "hotel not found using this ID" });
         }
 
     },
+
+    Update_All_Hotel_toBde: async (req, res) => {
+
+        if (!req.body.current_bde_id && !req.body.future_bde_id) {
+            return res.send({ responseCode: 201, msg: "Please provide bde ID & hotel Id" });
+        }
+
+        let BdeFind = await User.findOne({userId: req.body.future_bde_id, role:3});
+
+        if(!BdeFind){ return res.send({ responseCode: 201, msg: "unable to find BDE using this ID" });}
+
+        var hotel_data = await Hotel.find({ bdeId: req.body.bde_id });
+
+        async.forEachOf(hotel_data, function (hotel_single, i, callback) {
+            Hotel.updateOne({ id: hotel_single.id }).set({ bdeId:req.body.future_bde_id }).exec(function (err, AllBDEHotels) {
+                callback();
+            })
+            
+        }, function (err) {
+            if(err){sails.log(err, 'error on bde multi update')}
+                return res.send({ responseCode: 200, msg: "Bde updated successfully" });
+        });
+    },
+
+
 
 
     Get_All_BDM_Hotels: async (req, res) => {
