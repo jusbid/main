@@ -159,11 +159,11 @@ module.exports = {
     Create_Admin_Hotel: async (req, res) => {
 
         let email_Check = await Hotel.findOne({
-            email: req.body.email
+            email: req.body.email, name: req.body.name
         });
 
         if (email_Check) {
-            return res.send({ responseCode: 201, data: {}, msg: 'Hotel with this email already exists..' });
+            return res.send({ responseCode: 201, data: {}, msg: 'Hotel with this information already exists..' });
         }
 
         if (!req.body.bdeId && !req.body.name && !req.body.city) {
@@ -458,8 +458,6 @@ module.exports = {
 
     UpdateHotel: async (req, res) => {
 
-        sails.log(req.body, 'req.body');
-
         if (!req.body.hotel_id) {
             return res.send({ responseCode: 201, msg: 'Please provide hotel_id to update..' });
         }
@@ -510,8 +508,6 @@ module.exports = {
             is_multichain: req.body.is_multichain
 
         });
-
-        sails.log(HotelData, 'HotelData');
 
         return res.send({ responseCode: 200, msg: 'Hotel data saved successfully', data: HotelData });
 
@@ -946,7 +942,7 @@ module.exports = {
 
     Get_BDE_Hotels_New: async (req, res) => {
 
-        var fieldsSelect = ['name', 'plot_no', 'area', 'street', 'address', 'landmark', 'city', 'state', 'country', 'rating', 'landline', 'mobile', 'bdeId', 'id', 'status', 'image'];
+        var fieldsSelect = ['name', 'plot_no', 'area', 'street', 'address', 'landmark', 'city', 'state', 'country', 'rating', 'landline', 'mobile', 'bdeId', 'id', 'status', 'image', 'is_multichain'];
 
         var HotelData = [];
 
@@ -1318,6 +1314,38 @@ module.exports = {
     //     }
 
     // },
+
+
+    Decline_Hotel_BDE: async (req, res) => {
+
+        if (!req.body.hotel_id || !req.body.userId || !req.body.status) {
+            return res.send({ responseCode: 201, msg: 'Please provide hotel ID & user ID & status' });
+        }
+
+        var CheckHotel = await Hotel.findOne({ id: req.body.hotel_id });
+
+        if(!CheckHotel){
+            return res.send({ responseCode: 201, msg: 'Unable to find hotel' });
+        }
+
+        var CheckUser = await User.findOne({ userId: req.body.userId });
+
+        if(!CheckUser){
+            return res.send({ responseCode: 201, msg: 'Unable to find user' });
+        }
+
+        var DeactivateHotel = await Hotel.updateOne({ id : req.body.hotel_id, bdeId : req.body.userId }).set({ status:req.body.status, statusNote:req.body.statusNote });
+
+        sails.log(DeactivateHotel, 'DeactivateHotel');
+
+        if (DeactivateHotel) {
+            return res.send({ responseCode: 200, msg: 'Hotel status changed successfully' });
+        } else {
+            return res.send({ responseCode: 201, msg: 'Unable to decline hotel' });
+        }
+
+    },
+
 
     Change_Hotel_Status: async (req, res) => {
 

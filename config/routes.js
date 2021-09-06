@@ -127,6 +127,8 @@ module.exports.routes = {
   'POST /paginated-hotels': { controller: 'HotelController', action: 'Get_Hotels_Admin_Paginated' },
   'GET /set-commission': { controller: 'HotelController', action: 'Set_Hotel_Commissions' },
   'POST /get-bde-hotels-new': { controller: 'HotelController', action: 'Get_BDE_Hotels_New' },
+  'POST /decline-hotel-bde': { controller: 'HotelController', action: 'Decline_Hotel_BDE' },
+  
   
   //-------------------Hotel Controller Routing-------------------------------------------------------------
   'POST /create-hotel-request': { controller: 'HotelRequestController', action: 'CreateHotelRequest' },

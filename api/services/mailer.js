@@ -213,6 +213,40 @@ module.exports.HotelierWelcome = function (obj, hotel_image) {
 }
 
 
+module.exports.GroupHotelierWelcome = function (userobj, hotels) {
+    sails.log(obj, 'hoteldata------');
+    sails.log('sending welcome mail', obj);
+    var full_image_path = "https://www.transindiaholidays.com/Areas/Blog/UploadImages/Id_5c1a0aa3-7794-410a-952f-17ad8dc95c2c.jpg";
+    // if (hotel_image) {
+    //     full_image_path = 'https://jusbid.in:1337/' + hotel_image;
+    // }
+    readHTMLFile('api/emailTemplates/hotelierWelcome/groupHotelWelcome.ejs', function (err, html) {
+        var template = handlebars.compile(html);
+        var replacements = {
+            email: userobj.email,
+            password: userobj.password,
+            createdAt: userobj.createdAt,
+            hotels:hotels,
+            full_image_path: full_image_path
+        };
+        var htmlToSend = template(replacements);
+        var mailOptions = {
+            from: EmailFrom,
+            to: obj.email,
+            subject: 'Jusbid welcomes you to hotelier portal',
+            html: htmlToSend
+        };
+        transporter.sendMail(mailOptions, function (error, response) {
+            if (error) {
+                console.log(error);
+            }
+
+            if (response) { sails.log(response) }
+        });
+    });
+}
+
+
 module.exports.sendBookingConfirmation = function (obj) {
 
     readHTMLFile('api/emailTemplates/bookingEmail/user.ejs', function (err, html) {

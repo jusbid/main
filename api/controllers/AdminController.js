@@ -190,9 +190,14 @@ module.exports = {
             return res.send({ responseCode: 201, msg: "Please provide bde ID & hotel Id" });
         }
 
-        let BdeFind = await User.findOne({userId: req.body.future_bde_id, role:3});
+        sails.log( req.body.current_bde_id,  req.body.future_bde_id, 'bde id' );
 
-        if(!BdeFind){ return res.send({ responseCode: 201, msg: "unable to find BDE using this ID" });}
+        let BdeFind = await User.findOne({userId: req.body.future_bde_id, role:3});
+        let BdeFind2 = await User.findOne({userId: req.body.current_bde_id, role:3});
+
+        sails.log(BdeFind2, 'bde find');
+
+        if(!BdeFind || !BdeFind2){ return res.send({ responseCode: 201, msg: "unable to find BDE using this ID" });}
 
         var hotel_data = await Hotel.find({ bdeId: req.body.bde_id });
 
@@ -200,7 +205,6 @@ module.exports = {
             Hotel.updateOne({ id: hotel_single.id }).set({ bdeId:req.body.future_bde_id }).exec(function (err, AllBDEHotels) {
                 callback();
             })
-            
         }, function (err) {
             if(err){sails.log(err, 'error on bde multi update')}
                 return res.send({ responseCode: 200, msg: "Bde updated successfully" });

@@ -487,13 +487,22 @@ module.exports = {
             // send an email to hotel-------------------------------------------------------------------------------------------
 
             NotificationsFunctions.HotelApprovalNotification_BDM_BDE(HotelCheckStatus.bdeId, HotelCheckStatus.name);
-            mailer.HotelierWelcome(UserCreatedData, HotelData.image);
-            mailer.BDE_Hotel_Approval(HotelData);
+
+            let Check_AllHotels_Approval = await Hotel.find({ email: req.body.email});
+
+            var filteredMultiChainApproved = Check_AllHotels_Approval.filter(function(hotel){
+                return hotel.status == "Accepted";
+            });
+
+            if(filteredMultiChainApproved.length == Check_AllHotels_Approval.length){
+                mailer.GroupHotelierWelcome(UserCreatedData, Check_AllHotels_Approval);
+            }
+
 
         } else {
             if (req.body.status == "Accepted" && FindHotelier) {
-                sails.log(FindHotelier, 'in accept case');
-                mailer.HotelierWelcome(FindHotelier, HotelData.image);
+                //sails.log(FindHotelier, 'in accept case');
+               // mailer.HotelierWelcome(FindHotelier, HotelData.image);
             }
             else if (req.body.status == "Accepted" || req.body.status == "OnHold") {
 
