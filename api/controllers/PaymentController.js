@@ -4,8 +4,8 @@ var request = require('fs');
 var async = require('async');
 var request = require('request');
 
-var PaymentAPIKey = 'rzp_live_frMZlamkE50d2H';
-var PaymentAPISecretKey = '3anfw8nsYZSO5FveTA6FtZIf';
+var PaymentAPIKey = 'rzp_test_yYIkXBKJo7prO1';
+var PaymentAPISecretKey = 'TQzbonkdOQLUzQ94VupHv3VS';
 var DefaultGST = "06KIUJUSBID2333";
 
 module.exports = {

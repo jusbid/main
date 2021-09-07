@@ -51,8 +51,13 @@ module.exports = {
       }, function (error, response, body) {
   
         if (error) {
-          return res.send({ responseCode: 201, msg: 'Error while creating payment, ' + error });
+          sails.log(error, "error in our side");
+          return res.send({ responseCode: 201, msg: 'Error while fetching flights, ' + error });
+          
         }else{
+
+          sails.log(body, 'body');
+
           var jsondata = parser.toJson(body);
           var jsondata = JSON.parse(jsondata);
            if(!jsondata["SOAP:Envelope"]){
@@ -101,6 +106,8 @@ module.exports = {
          var RequestPay = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"><soapenv:Header/><soapenv:Body><air:LowFareSearchReq AuthorizedBy="AmbitionTravels" SolutionResult="false" TargetBranch="'+FTargetBranch+'" xmlns:air="http://www.travelport.com/schema/air_v50_0" TraceId="FBUAPI39283" xmlns:common="http://www.travelport.com/schema/common_v50_0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.travelport.com/schema/air_v50_0 file:///C:/Users/mukil.kumar/Documents/Ecommerce/WSDL/Release-V17.3.0.35-V17.3/air_v50_0/AirReqRsp.xsd"><common:BillingPointOfSaleInfo OriginApplication="uAPI" /><air:SearchAirLeg><air:SearchOrigin><common:CityOrAirport Code="'+departure+'" /></air:SearchOrigin><air:SearchDestination><common:CityOrAirport Code="'+arrival+'" /></air:SearchDestination><air:SearchDepTime PreferredTime="'+flightDate+'" /></air:SearchAirLeg><air:AirSearchModifiers><air:PreferredProviders><common:Provider Code="1G" /></air:PreferredProviders></air:AirSearchModifiers>'+PassengerType+'<air:AirPricingModifiers ETicketability="Yes" FaresIndicator="AllFares" ></air:AirPricingModifiers></air:LowFareSearchReq></soapenv:Body></soapenv:Envelope>';
       }
 
+      sails.log(RequestPay, 'request xml');
+
       request({
           method: 'POST',
           url: 'https://apac.universal-api.pp.travelport.com/B2BGateway/connect/uAPI/AirService',
@@ -113,7 +120,8 @@ module.exports = {
         }, function (error, response, body) {
     
           if (error) {
-            return res.send({ responseCode: 201, msg: 'Error while creating payment, ' + error });
+            sails.log(error, "error in our side");
+            return res.send({ responseCode: 201, msg: 'Error while fetching flights, ' + error });
           }else{
             var jsondata = parser.toJson(body);
             var jsondata = JSON.parse(jsondata);

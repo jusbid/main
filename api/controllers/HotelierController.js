@@ -488,7 +488,7 @@ module.exports = {
 
             NotificationsFunctions.HotelApprovalNotification_BDM_BDE(HotelCheckStatus.bdeId, HotelCheckStatus.name);
 
-            let Check_AllHotels_Approval = await Hotel.find({ email: req.body.email});
+            let Check_AllHotels_Approval = await Hotel.find({ email: HotelData.email});
 
             var filteredMultiChainApproved = Check_AllHotels_Approval.filter(function(hotel){
                 return hotel.status == "Accepted";
@@ -501,8 +501,21 @@ module.exports = {
 
         } else {
             if (req.body.status == "Accepted" && FindHotelier) {
-                //sails.log(FindHotelier, 'in accept case');
-               // mailer.HotelierWelcome(FindHotelier, HotelData.image);
+
+                let Check_AllHotels_Approval = await Hotel.find({ email: HotelData.email});
+
+                
+    
+                var filteredMultiChainApproved = Check_AllHotels_Approval.filter(function(hotel){
+                    return hotel.status == "Accepted";
+                });
+
+                sails.log(Check_AllHotels_Approval.length, '------', filteredMultiChainApproved.length);
+    
+                if(filteredMultiChainApproved.length == Check_AllHotels_Approval.length){
+                    mailer.GroupHotelierWelcome(UserCreatedData, Check_AllHotels_Approval);
+                }
+
             }
             else if (req.body.status == "Accepted" || req.body.status == "OnHold") {
 

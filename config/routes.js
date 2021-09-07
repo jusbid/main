@@ -67,7 +67,6 @@ module.exports.routes = {
   'POST /get-system-users': { controller: 'SystemUserController', action: 'System_Users_List' },
   'POST /system-user-login': { controller: 'LoginController', action: 'System_User_Login' },
   'POST /get-users-for-admin': { controller: 'SystemUserController', action: 'Get_Users_Admin' },
-
   'POST /get-all-complaints-admin': { controller: 'SystemUserController', action: 'Get_All_Admin_Complaints' },
   'POST /get-rejected-bids-admin': { controller: 'SystemUserController', action: 'Get_Rejected_Bids_Admin' },
   'POST /get-all-bids-admin': { controller: 'SystemUserController', action: 'Get_All_Bids_Admin' },

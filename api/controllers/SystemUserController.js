@@ -326,9 +326,6 @@ module.exports = {
         }, function (err) {
             if (err) { sails.log(err, 'in rejected bids admin API') }
 
-
-
-
             let roleId = UserData.role;
             var BidsAllFinal;
             if (is_systemuser) {

@@ -377,8 +377,8 @@ module.exports = {
             return res.send({ responseCode: 201, data: {}, msg: 'User with this mobile number already exists' });
         }
 
-        let Email_Check = await User.findOne({ email: req.body.email });
-        if (Email_Check) { return res.send({ responseCode: 201, data: {}, msg: 'User with this email already exists' }); }
+        let Email_Check = await User.find({ email: req.body.email });
+        if (Email_Check.length > 0) { return res.send({ responseCode: 201, data: {}, msg: 'User with this email already exists' }); }
         let UserCounts = await User.count();
 
         //----------------------generate user id and password---------------------------------------------------------------------------------------------
@@ -1082,7 +1082,7 @@ module.exports = {
 
 
     Get_TravelAgents_For_BDM: async (req, res) => {
-        let SelectFields = ['id', 'userId', 'firstname', 'lastname', 'profile_img', 'status', 'email', 'mobile', 'parent_bdm'];
+        let SelectFields = ['id', 'userId', 'firstname', 'lastname', 'profile_img', 'status', 'email', 'mobile', 'parent_bdm', 'role'];
 
         let CheckBDM = await User.find({ select: SelectFields }).where({ userId: req.body.userId, role: 2 });
 
@@ -1090,13 +1090,15 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'BDM not found using this user ID' });
         }
 
-
         let userId = req.body.userId;
         if (!userId) {
             return res.send({ responseCode: 201, data: {}, msg: 'userId parameter not found' });
         }
         var MyBDE = [];
         let UserData = await User.find({ select: SelectFields }).where({ parent_bdm: userId, role: 3 }).sort('createdAt DESC');
+
+        sails.log(UserData, 'UserData----->BDE', userId);
+
         async.forEachOf(UserData, function (value, i, callback) {
             //MY BDE UserId Collection------------------------------------------------------
             MyBDE.push(value.userId);

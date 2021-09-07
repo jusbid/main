@@ -214,8 +214,8 @@ module.exports.HotelierWelcome = function (obj, hotel_image) {
 
 
 module.exports.GroupHotelierWelcome = function (userobj, hotels) {
-    sails.log(obj, 'hoteldata------');
-    sails.log('sending welcome mail', obj);
+    sails.log(userobj, 'hoteldata------');
+    sails.log('sending welcome mail', userobj);
     var full_image_path = "https://www.transindiaholidays.com/Areas/Blog/UploadImages/Id_5c1a0aa3-7794-410a-952f-17ad8dc95c2c.jpg";
     // if (hotel_image) {
     //     full_image_path = 'https://jusbid.in:1337/' + hotel_image;
@@ -232,7 +232,7 @@ module.exports.GroupHotelierWelcome = function (userobj, hotels) {
         var htmlToSend = template(replacements);
         var mailOptions = {
             from: EmailFrom,
-            to: obj.email,
+            to: userobj.email,
             subject: 'Jusbid welcomes you to hotelier portal',
             html: htmlToSend
         };
