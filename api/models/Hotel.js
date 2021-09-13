@@ -167,6 +167,10 @@ module.exports = {
       type: 'string',
       required: false
     },
+    total_rooms: {
+      type: 'number',
+      required: false
+    },
     is_multichain: {
       type: 'boolean',
       defaultsTo: false

@@ -1,0 +1,47 @@
+<html>
+
+<head>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.13.1/jquery.validate.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+</head>
+
+
+<body>
+
+    <div class="text-center" style="padding:50px 0">
+        <div class="logo"><h3>Rename Hotel Cities</h3></div>
+
+        <div class="login-form-1" style="width:50%;margin:0 auto">
+            <form id="login-form" class="text-left" action="/update-city-now" method="POST">
+                <div class="login-form-main-message"></div>
+                <div class="main-login-form">
+                    <div class="login-group">
+                        <div class="form-group">
+                            <label for="lg_username" class="sr-only">Current City Name</label>
+                            <input type="text" class="form-control"  name="current_city"
+                                placeholder="Current City Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lg_password" class="sr-only">Replace By</label>
+                            <input type="text" class="form-control"  name="update_city"
+                                placeholder="Replace By" required>
+                        </div>
+                       
+                    </div>
+                    <button type="submit" class="btn btn-success">Update</button>
+                </div>
+               
+            </form>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

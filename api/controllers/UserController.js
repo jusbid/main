@@ -521,9 +521,9 @@ module.exports = {
 
     Edit_OnBoard_Agent: async (req, res) => {
 
-        if ( !req.body.userId) { return res.send({ responseCode: 201, msg: 'Please provide user Id' }); }
+        if (!req.body.userId) { return res.send({ responseCode: 201, msg: 'Please provide user Id' }); }
 
-        let Mobile_Check = await User.findOne({userId: req.body.userId});
+        let Mobile_Check = await User.findOne({ userId: req.body.userId });
 
         if (!Mobile_Check) {
             return res.send({ responseCode: 201, data: {}, msg: 'User with this id does not exists' });
@@ -896,11 +896,18 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'Please provide both userId & status' });
         }
 
-        var UpdatedUser = await User.updateOne({ userId: req.body.userId }).set({ status: req.body.status, statusNote: req.body.statusNote });
+        var UpdatedUser = await User.updateOne({ userId: req.body.userId }).set({ status: req.body.status, statusNote: req.body.statusNote }).fetch();
         if (UpdatedUser) {
-            NotificationsFunctions.CreateUserNotification('Profile Updated', 'Your profile is updated, status changed to ' + req.body.status, UpdatedUser.role, 'Status', req.body.userId);
-            // Also send to CC BDM----------
-            if (UpdatedUser.role == 3 && UpdatedUser.parent_bdm) NotificationsFunctions.CreateUserNotification('BDE ' + UpdatedUser.firstname + ' Profile Updated', 'BDE ' + UpdatedUser.firstname + ' profile updated, status changed to ' + req.body.status, UpdatedUser.role, 'Status', UpdatedUser.parent_bdm);
+
+        //send email to travel agent if status is approved------------------------------------------------------------------------------------------
+        if (req.body.status == "Approved" && UpdatedUser.role == 4) {
+            mailer.sendAgentMail(UpdatedUser);
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------
+
+        NotificationsFunctions.CreateUserNotification('Profile Updated', 'Your profile is updated, status changed to ' + req.body.status, UpdatedUser.role, 'Status', req.body.userId);
+        // Also send to CC BDM----------
+        if (UpdatedUser.role == 3 && UpdatedUser.parent_bdm) NotificationsFunctions.CreateUserNotification('BDE ' + UpdatedUser.firstname + ' Profile Updated', 'BDE ' + UpdatedUser.firstname + ' profile updated, status changed to ' + req.body.status, UpdatedUser.role, 'Status', UpdatedUser.parent_bdm);
 
             return res.send({ responseCode: 200, msg: 'User with userId ' + req.body.userId + ' is updated successfully' });
         } else {

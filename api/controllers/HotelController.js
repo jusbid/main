@@ -1,6 +1,7 @@
 var fs = require('fs');
 var async = require('async');
 const MaxBytesUpload_UserFile = 60000000;
+var request = require('request');
 
 module.exports = {
 
@@ -12,63 +13,47 @@ module.exports = {
 
     OnBoard_Hotel: async (req, res) => {
 
-            if (!req.body.name || !req.body.category || !req.body.city ||  !req.body.mobile) {
-                return res.send({ responseCode: 201, data: {}, msg: 'Please provide required information..' });
-            }
+        if (!req.body.name || !req.body.category || !req.body.city || !req.body.mobile) {
+            return res.send({ responseCode: 201, data: {}, msg: 'Please provide required information..' });
+        }
 
-            if (req.body.hotel_views) {
-                sails.log(req.body.hotel_views, 'req.body.hotel_views');
-                var hotel_views = req.body.hotel_views;
-            }
-
-            if (req.body.seasonal_months) {
-                var hotel_months = req.body.seasonal_months;
-            }
-
-            let HotelName = req.body.name;
-            HotelName = HotelName.trim();
+        let HotelName = req.body.name;
+        HotelName = HotelName.trim();
 
 
-            let CheckVerify = await Hotel.findOne({
-                email: req.body.email, name: HotelName, address: req.body.address
-            });
+        let CheckVerify = await Hotel.findOne({
+            email: req.body.email, name: HotelName, address: req.body.address
+        });
 
-            let email_Check = await Hotel.findOne({
-                email: req.body.email, name: HotelName
-            });
+        let email_Check = await Hotel.findOne({
+            email: req.body.email, name: HotelName
+        });
 
-            if (CheckVerify) {
-                return res.send({ responseCode: 201, data: {}, msg: 'Hotel with this information already exists..' });
-            }
+        if (CheckVerify) {
+            return res.send({ responseCode: 201, data: {}, msg: 'Hotel with this information already exists..' });
+        }
 
-            if(email_Check){
-                return res.send({ responseCode: 201, data: {}, msg: 'Hotel with this information already exists..' });
-            }
+        if (email_Check) {
+            return res.send({ responseCode: 201, data: {}, msg: 'Hotel with this information already exists..' });
+        }
 
-            sails.log(email_Check, 'email_Check', req.body.email, HotelName);
+        if (!req.body.bdeId && !req.body.name && !req.body.city) {
+            return res.send({ responseCode: 201, data: {}, msg: 'Please provide all mandatory details to add a hotel' });
+        }
 
-            if (!req.body.bdeId && !req.body.name && !req.body.city) {
-                return res.send({ responseCode: 201, data: {}, msg: 'Please provide all mandatory details to add a hotel' });
-            }
+        var FilePrefixPath = functions.Get_FileUpload_Path();
+        var hotel_image_link = '';
 
-            
+        if (!fs.existsSync('assets/images/hotel' + FilePrefixPath)) { fs.mkdir('assets/images/hotel' + FilePrefixPath, function (err, result) { }); }
 
-            var FilePrefixPath = functions.Get_FileUpload_Path();
+        req.file('image').upload({
+            maxBytes: MaxBytesUpload_UserFile,
+            dirname: require('path').resolve(sails.config.appPath, 'assets/images/hotel' + FilePrefixPath)
+        }, function (err, uploadedFiles1) {
 
-            var hotel_image_link = '';
-
-            if (!fs.existsSync('assets/images/hotel' + FilePrefixPath)) { fs.mkdir('assets/images/hotel' + FilePrefixPath, function (err, result) { }); }
-
-            req.file('image').upload({
-                dirname: require('path').resolve(sails.config.appPath, 'assets/images/hotel' + FilePrefixPath)
-            }, function (err, uploadedFiles1) {
-
-                if (!uploadedFiles1) {  return res.send({ responseCode: 201, msg: 'Please provide hotel image file' }); }
-                if (uploadedFiles1.length == 0) {  return res.send({ responseCode: 201, msg: 'Please provide hotel image file' });}
-                if (err) return res.serverError(err);
-
-
-            // create hotel----------------------------------------------------------------------------------------
+            if (!uploadedFiles1) { return res.send({ responseCode: 201, msg: 'Please provide hotel image file' }); }
+            if (uploadedFiles1.length == 0) { return res.send({ responseCode: 201, msg: 'Please provide hotel image file' }); }
+            if (err) return res.serverError(err);
 
             Hotel.create({
 
@@ -110,49 +95,230 @@ module.exports = {
                 hotel_views: req.body.hotel_views,
                 seasonal_months: req.body.seasonal_months,
                 star_rating: req.body.star_rating,
-                is_multichain:req.body.is_multichain,
-                secondary_email:req.body.secondary_email
+                is_multichain: req.body.is_multichain,
+                secondary_email: req.body.secondary_email,
+                //-----------------------------------------
+                total_rooms:req.body.total_rooms
 
-            }).fetch().exec(function (err, HotelData) { 
+            }).fetch().exec(function (err, HotelData) {
 
-                if(err) sails.log(err);
+                if (err) sails.log(err);
 
                 //Upload Hotel Image------------------------------------------------------------------------------------------------------
-        
+
                 let Hotel_ID = HotelData.id;
-    
+
                 var ImageName = req.body.imageName;
-        
-                if (!ImageName) { return res.send({ responseCode: 201, msg: 'Please provide image name' });}
-        
-                    hotel_image_link = functions.Get_Excluded_Path(uploadedFiles1[0].fd);
-        
-                    // Generate Thumbnail Image--------------------------------------------------
-        
-                    functions.GenerateMinifiedImg(hotel_image_link, 50);
-                    let Min_Path = functions.Get_MinPath(hotel_image_link);
-                    functions.Set_Primary_Image(Hotel_ID, Min_Path, ImageName);
-        
-                    HotelImages.create({
-        
-                        hotel_id: Hotel_ID,
-                        name: ImageName,
-                        path: hotel_image_link,
-                        min_path: Min_Path
-                    }).fetch().exec(function (err, result) {
-        
-                       if(err) sails.log(err, "err");
-                        if (result) {
-                            mailer.HotelAdded(HotelData);
-                            NotificationsFunctions.HotelCreationNotification_BDM_BDE(req.body.bdeId, req.body.name);
-                            mailer.Hotel_Add_Notification_BDM_with_Hotel(HotelData, req.body.bdeId);
-                            return res.send({ responseCode: 200, msg: 'Hotel created successfully..', data:HotelData });
-                        } else {
-                            return res.send({ responseCode: 201, msg: 'error while saving hotel data & image, please try again..' });
-                        }
-                    })
+
+                if (!ImageName) { return res.send({ responseCode: 201, msg: 'Please provide image name' }); }
+
+                hotel_image_link = functions.Get_Excluded_Path(uploadedFiles1[0].fd);
+
+                // Generate Thumbnail Image--------------------------------------------------
+
+                functions.GenerateMinifiedImg(hotel_image_link, 50);
+                let Min_Path = functions.Get_MinPath(hotel_image_link);
+                functions.Set_Primary_Image(Hotel_ID, Min_Path, ImageName);
+
+                HotelImages.create({
+                    hotel_id: Hotel_ID,
+                    name: ImageName,
+                    path: hotel_image_link,
+                    min_path: Min_Path
+                }).fetch().exec(function (err, result) {
+
+                    if (err) sails.log(err, "err");
+                    if (result) {
+                        mailer.HotelAdded(HotelData);
+                        NotificationsFunctions.HotelCreationNotification_BDM_BDE(req.body.bdeId, req.body.name);
+                        mailer.Hotel_Add_Notification_BDM_with_Hotel(HotelData, req.body.bdeId);
+                        return res.send({ responseCode: 200, msg: 'Hotel created successfully..', data: HotelData });
+                    } else {
+                        return res.send({ responseCode: 201, msg: 'error while saving hotel data & image, please try again..' });
+                    }
+                })
             });
         });
+    },
+
+    OnBoard_Hotel_Auto: async (req, res) => {
+
+        var API_KEY = "AIzaSyDE-h58ZuU-qvsoYyBmci0idpoGq3pPXxY";
+        var BASE_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=";
+
+        var address = req.body.address;
+        var url = BASE_URL + address + "&key=" + API_KEY;
+        if(!req.body.longitude || !req.body.latitude){
+            return res.send({ responseCode: 201, data: {}, msg: 'Not able to fetch your location..' });
+        }
+
+        request(url, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+
+                sails.log(body, 'body');
+
+                let BodyParsed = JSON.parse(body);
+                //sails.log(BodyParsed.results[0].geometry);
+                if(BodyParsed.results.length==0){
+                    return res.send({ responseCode: 201, data: {}, msg: 'Not able to fetch hotel by this address' });
+
+                }
+                let latitude = BodyParsed.results[0].geometry.location.lat;
+                let longitude = BodyParsed.results[0].geometry.location.lng;
+
+
+                //--------------------------check location difference --------------------------------------------------------
+
+                var ky = 40000 / 360;
+                var kx = Math.cos(Math.PI * latitude / 180.0) * ky;
+                var dx = Math.abs(longitude - req.body.longitude) * kx;
+                var dy = Math.abs(latitude - req.body.latitude) * ky;
+
+      
+                var Result_Dis = Math.sqrt(dx * dx + dy * dy);
+                sails.log( Math.ceil(Result_Dis), 'dis---',  req.body.latitude, '--', req.body.longitude, '--google lat long-', latitude, longitude);
+                if(Math.ceil( Result_Dis ) > 2){
+                    return res.send({ responseCode: 201, data: {}, msg: 'Hotel and your location is different, if your are at hotel, please check entered address..' });
+                }
+
+                //--------------------------------------Running create hotel api--------------------------------------------------------
+
+                if (!req.body.name || !req.body.category || !req.body.city || !req.body.mobile) {
+                    return res.send({ responseCode: 201, data: {}, msg: 'Please provide required information..' });
+                }
+
+                let HotelName = req.body.name;
+                HotelName = HotelName.trim();
+
+
+                Hotel.findOne({
+                    email: req.body.email, name: HotelName, address: req.body.address
+                }).exec(function (err, hotel_email_check) {
+
+                    Hotel.findOne({
+                        email: req.body.email, name: HotelName
+                    }).exec(function (err, hotel_name_emailcheck) {
+
+                        if (hotel_email_check || hotel_name_emailcheck) {
+                            return res.send({ responseCode: 201, data: {}, msg: 'Hotel with this information already exists..' });
+                        }
+
+                        if (!req.body.bdeId && !req.body.name && !req.body.city) {
+                            return res.send({ responseCode: 201, data: {}, msg: 'Please provide all mandatory details to add a hotel' });
+                        }
+
+                        var FilePrefixPath = functions.Get_FileUpload_Path();
+                        var hotel_image_link = '';
+
+                        if (!fs.existsSync('assets/images/hotel' + FilePrefixPath)) { fs.mkdir('assets/images/hotel' + FilePrefixPath, function (err, result) { }); }
+
+                        req.file('image').upload({
+                            dirname: require('path').resolve(sails.config.appPath, 'assets/images/hotel' + FilePrefixPath)
+                        }, function (err, uploadedFiles1) {
+
+                            if (!uploadedFiles1) { return res.send({ responseCode: 201, msg: 'Please provide hotel image file' }); }
+                            if (uploadedFiles1.length == 0) { return res.send({ responseCode: 201, msg: 'Please provide hotel image file' }); }
+                            if (err) return res.serverError(err);
+
+                            Hotel.create({
+
+                                bdeId: req.body.bdeId,
+                                hotelierId: req.body.hotelierId,
+                                name: HotelName,
+                                view_name: req.body.view_name,
+                                category: req.body.category,
+                                rating: req.body.rating,
+                                hotel_amenities: [],
+                                downfall: req.body.downfall,
+                                latitude: req.body.latitude,
+                                longitude: req.body.longitude,
+                                plot_no: req.body.plot_no,
+                                street: req.body.street,
+                                area: req.body.area,
+                                address: req.body.address,
+                                landmark: req.body.landmark,
+                                city: req.body.city,
+                                state: req.body.state,
+                                zip: req.body.zip,
+                                country: req.body.country,
+                                occupancy: req.body.occupancy,
+                                landline: req.body.landline,
+                                mobile: req.body.mobile,
+                                email: req.body.email,
+                                owner_name: req.body.owner_name,
+                                owner_mobile: req.body.owner_mobile,
+                                owner_email: req.body.owner_email,
+                                manager_name: req.body.manager_name,
+                                manager_mobile: req.body.manager_mobile,
+                                manager_email: req.body.manager_email,
+                                exec_name: req.body.exec_name,
+                                exec_mobile: req.body.exec_mobile,
+                                exec_email: req.body.exec_email,
+                                fax: req.body.fax,
+                                manager_email: req.body.manager_email,
+                                // new keys----------------------------
+                                hotel_views: req.body.hotel_views,
+                                seasonal_months: req.body.seasonal_months,
+                                star_rating: req.body.star_rating,
+                                is_multichain: req.body.is_multichain,
+                                secondary_email: req.body.secondary_email
+
+                            }).fetch().exec(function (err, HotelData) {
+
+                                if (err) sails.log(err);
+
+                                //Upload Hotel Image------------------------------------------------------------------------------------------------------
+
+                                let Hotel_ID = HotelData.id;
+
+                                var ImageName = req.body.imageName;
+
+                                if (!ImageName) { return res.send({ responseCode: 201, msg: 'Please provide image name' }); }
+
+                                hotel_image_link = functions.Get_Excluded_Path(uploadedFiles1[0].fd);
+
+                                // Generate Thumbnail Image--------------------------------------------------
+
+                                functions.GenerateMinifiedImg(hotel_image_link, 50);
+                                let Min_Path = functions.Get_MinPath(hotel_image_link);
+                                functions.Set_Primary_Image(Hotel_ID, Min_Path, ImageName);
+
+                                HotelImages.create({
+                                    hotel_id: Hotel_ID,
+                                    name: ImageName,
+                                    path: hotel_image_link,
+                                    min_path: Min_Path
+                                }).fetch().exec(function (err, result) {
+
+                                    if (err) sails.log(err, "err");
+                                    if (result) {
+                                        mailer.HotelAdded(HotelData);
+                                        NotificationsFunctions.HotelCreationNotification_BDM_BDE(req.body.bdeId, req.body.name);
+                                        mailer.Hotel_Add_Notification_BDM_with_Hotel(HotelData, req.body.bdeId);
+                                        return res.send({ responseCode: 200, msg: 'Hotel created successfully..', data: HotelData });
+                                    } else {
+                                        return res.send({ responseCode: 201, msg: 'error while saving hotel data & image, please try again..' });
+                                    }
+                                })
+                            });
+                        });
+
+                    });
+
+                });
+
+
+
+                //----------------------------------------------------------------------------------------------------------------------
+
+
+             //   return res.send({ responseCode: 200, msg: 'fetched.', latitude: latitude, longitude: longitude, body: BodyParsed });
+            }
+            else {
+                return res.send({ responseCode: 201, msg: "error while fetching location", data: error });
+            }
+        });
+
     },
 
 
@@ -541,7 +707,7 @@ module.exports = {
 
     Get_Hotels_Filtered: async (req, res) => {
 
-        let SelectFields = ['id', 'name', 'bdeId','hotelierId', 'email', 'mobile', 'city', 'state', 'status', 'createdAt', 'updatedAt', 'is_deleted'];
+        let SelectFields = ['id', 'name', 'bdeId', 'hotelierId', 'email', 'mobile', 'city', 'state', 'status', 'createdAt', 'updatedAt', 'is_deleted'];
 
         let start_date = req.body.start_date;
         let end_date = req.body.end_date;
@@ -550,31 +716,31 @@ module.exports = {
         sails.log(status_collection, 'status_collection');
         let HotelData = [];
 
-        sails.log(new Date(start_date), 'sd', new Date(end_date) );
+        sails.log(new Date(start_date), 'sd', new Date(end_date));
 
         if (start_date && end_date) {
-            HotelData = await Hotel.find({ select:SelectFields }).where({ bdeId:bde_id, createdAt: { '>': new Date(start_date), '<': new Date(end_date) }, is_deleted:false   }).sort("createdAt DESC");
+            HotelData = await Hotel.find({ select: SelectFields }).where({ bdeId: bde_id, createdAt: { '>': new Date(start_date), '<': new Date(end_date) }, is_deleted: false }).sort("createdAt DESC");
         } else {
-            HotelData = await Hotel.find({select:SelectFields}).where({ bdeId:bde_id, status: status_collection, is_deleted:false }).sort("createdAt DESC");
+            HotelData = await Hotel.find({ select: SelectFields }).where({ bdeId: bde_id, status: status_collection, is_deleted: false }).sort("createdAt DESC");
         }
 
-        
+
         async.forEachOf(HotelData, function (value, i, callback) {
             sails.log(value.createdAt, '---------------CD');
             HotelData[i].bde_name = '';
             if (value.bdeId && value.bdeId != '') {
                 // Getting Room Counts----------------------------------------------------------------------------------
-            let totalRooms = 0;
-            HotelRooms.find({hotel_id : value.id}).exec(function (err, RoomsData) {
+                let totalRooms = 0;
+                HotelRooms.find({ hotel_id: value.id }).exec(function (err, RoomsData) {
 
-                HotelData[i].rooms = RoomsData;
-                User.findOne({ select: ["userId", "firstname", "lastname"] }).where({ userId: value.bdeId }).exec(function (err, UserData) {
-                    if (UserData) {
-                        HotelData[i].bde_name = UserData.firstname + ' ' + UserData.lastname;
-                    }
-                    callback();
-                });
-            })
+                    HotelData[i].rooms = RoomsData;
+                    User.findOne({ select: ["userId", "firstname", "lastname"] }).where({ userId: value.bdeId }).exec(function (err, UserData) {
+                        if (UserData) {
+                            HotelData[i].bde_name = UserData.firstname + ' ' + UserData.lastname;
+                        }
+                        callback();
+                    });
+                })
 
             } else { callback(); }
 
@@ -596,7 +762,7 @@ module.exports = {
 
         let userId = req.body.userId;
         let status;
-        if(req.body.status){status = req.body.status;}
+        if (req.body.status) { status = req.body.status; }
 
         var is_systemuser = true;
 
@@ -623,7 +789,7 @@ module.exports = {
 
             if (roleId == 0 || roleId == '0') {
                 sails.log('in admin');
-                HotelData = await Hotel.find({ select: SelectFields }).where({ is_deleted: false, status:status }).limit(limit).skip(TempPage).sort("createdAt DESC");
+                HotelData = await Hotel.find({ select: SelectFields }).where({ is_deleted: false, status: status }).limit(limit).skip(TempPage).sort("createdAt DESC");
             }
             else if (roleId == 1 || roleId == '1') {
                 //-----add selected states requested over zones------------------
@@ -635,8 +801,8 @@ module.exports = {
             else if (roleId == 3 || roleId == '3') {
                 HotelData = await Hotel.find({ select: SelectFields }).where({ state: UserData.state, city: UserData.city, is_deleted: false }).sort("createdAt DESC");
             }
-            else if (roleId == 4 || roleId == '4'){
-                HotelData = await Hotel.find({ select: SelectFields }).where({ is_deleted: false, status:status }).limit(limit).skip(TempPage).sort("createdAt DESC");
+            else if (roleId == 4 || roleId == '4') {
+                HotelData = await Hotel.find({ select: SelectFields }).where({ is_deleted: false, status: status }).limit(limit).skip(TempPage).sort("createdAt DESC");
 
             }
 
@@ -992,7 +1158,7 @@ module.exports = {
                 return res.send({ responseCode: 201, data: {}, msg: 'No hotel found using this criteria' });
             }
             else {
-                return res.send({ responseCode: 200, approved: HotelDataApproved, pending: HotelDataPending, accepted:HotelDataAccepted });
+                return res.send({ responseCode: 200, approved: HotelDataApproved, pending: HotelDataPending, accepted: HotelDataAccepted });
             }
 
         });
@@ -1216,21 +1382,21 @@ module.exports = {
 
         let UserCounts = await User.count();
 
-        let randomString = (Math.random() + 1).toString(36).substring(8);
+        let randomString = (Math.random() + 1).toString(36).substring(10);
 
         let save_userid = HotelCheckStatus.name.substring(0, 3) + '' + randomString + (parseInt(UserCounts) + 1);
 
-        let save_password = HotelCheckStatus.name.substring(0, 3) + '' + parseInt(Math.random() * 1000, 10) + '' + functions.Get_DateSeq();
+        let save_password = HotelCheckStatus.name.substring(0, 3) + '' + parseInt(Math.random() * 100, 10) + '' + functions.Get_DateSeq();
 
         // check if hotelier user is created in system--------------------------------------------------------------------------
         var FindHotelier = await User.findOne({}).where({ hotel_id: req.body.hotel_id, role: 5 });
 
-        if(save_userid){
-            save_userid = save_userid.replace(/ /g,"j");
+        if (save_userid) {
+            save_userid = save_userid.replace(/ /g, "j");
         }
 
-        if(save_password){
-            save_password = save_password.replace(/ /g,"j");
+        if (save_password) {
+            save_password = save_password.replace(/ /g, "j");
         }
 
         if (!FindHotelier && req.body.status == "Accepted") {
@@ -1324,17 +1490,17 @@ module.exports = {
 
         var CheckHotel = await Hotel.findOne({ id: req.body.hotel_id });
 
-        if(!CheckHotel){
+        if (!CheckHotel) {
             return res.send({ responseCode: 201, msg: 'Unable to find hotel' });
         }
 
         var CheckUser = await User.findOne({ userId: req.body.userId });
 
-        if(!CheckUser){
+        if (!CheckUser) {
             return res.send({ responseCode: 201, msg: 'Unable to find user' });
         }
 
-        var DeactivateHotel = await Hotel.updateOne({ id : req.body.hotel_id, bdeId : req.body.userId }).set({ status:req.body.status, statusNote:req.body.statusNote });
+        var DeactivateHotel = await Hotel.updateOne({ id: req.body.hotel_id, bdeId: req.body.userId }).set({ status: req.body.status, statusNote: req.body.statusNote });
 
         sails.log(DeactivateHotel, 'DeactivateHotel');
 
@@ -1500,7 +1666,13 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'Please provide  HotelId & ImageId & room_id' });
         }
 
+        let HotelImage = await RoomImages.findOne({ id: image_id, hotel_id: HotelId });
+
         let DesHotelImage = await RoomImages.destroyOne({ id: image_id, hotel_id: HotelId });
+
+        if(HotelImage){
+            functions2.Remove_Hotel_File(HotelImage.path, HotelImage.min_path);
+        }
 
         if (DesHotelImage) {
             return res.send({ responseCode: 200, msg: 'Room image removed successfully' });
@@ -1546,7 +1718,7 @@ module.exports = {
 
         if (CheckLogo.length > 1) {
             await HotelImages.destroy({ hotel_id: req.body.hotel_id, name: "Logo" });
-        }else{
+        } else {
             CheckLogo_Var = true;
         }
 
@@ -1631,7 +1803,10 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'Please provide both HotelId & ImageId' });
         }
 
-        let DesHotelImage = await HotelImages.destroyOne({ id: image_id, hotel_id: HotelId });
+        let HotelImage = await HotelImages.findOne({ id: image_id, hotel_id: HotelId });
+        if(HotelImage)functions2.Remove_Hotel_File(HotelImage.path, HotelImage.min_path);
+
+        await HotelImages.destroyOne({ id: image_id, hotel_id: HotelId });
 
         return res.send({ responseCode: 200, msg: 'Hotel image removed successfully' });
 
@@ -1648,18 +1823,18 @@ module.exports = {
 
     Add_Hotel_AddOn: async (req, res) => {
 
-        if(!req.body.hotel_id && !req.body.name && !req.body.price){
+        if (!req.body.hotel_id && !req.body.name && !req.body.price) {
             return res.send({ responseCode: 201, msg: 'Please provide required parameters..' });
         }
 
-        let checkDup = await AddOn.find({hotel_id: req.body.hotel_id, name : req.body.name});
+        let checkDup = await AddOn.find({ hotel_id: req.body.hotel_id, name: req.body.name });
 
-        if(checkDup.length>=2){
-            await AddOn.destroy({hotel_id: req.body.hotel_id, name : req.body.name});
+        if (checkDup.length >= 2) {
+            await AddOn.destroy({ hotel_id: req.body.hotel_id, name: req.body.name });
             return res.send({ responseCode: 201, msg: 'Multiple addon exists with same, please try adding it again..' });
         }
 
-        if(checkDup.length == 1){
+        if (checkDup.length == 1) {
             return res.send({ responseCode: 201, msg: 'AddOn already exists with this name..' });
         }
 
@@ -1683,11 +1858,11 @@ module.exports = {
 
     Update_Hotel_AddOn: async (req, res) => {
 
-        if(!req.body.hotel_id || !req.body.addon_id){
+        if (!req.body.hotel_id || !req.body.addon_id) {
             return res.send({ responseCode: 201, msg: 'Please provide required parameters..' });
         }
 
-        let AddOnCreated = await AddOn.updateOne({  id: req.body.addon_id }).set({
+        let AddOnCreated = await AddOn.updateOne({ id: req.body.addon_id }).set({
             name: req.body.name,
             description: req.body.description,
             price: req.body.price

@@ -199,10 +199,10 @@ module.exports = {
 
         if(!BdeFind || !BdeFind2){ return res.send({ responseCode: 201, msg: "unable to find BDE using this ID" });}
 
-        var hotel_data = await Hotel.find({ bdeId: req.body.bde_id });
+        var hotel_data = await Hotel.find({ bdeId: req.body.current_bde_id });
 
         async.forEachOf(hotel_data, function (hotel_single, i, callback) {
-            Hotel.updateOne({ id: hotel_single.id }).set({ bdeId:req.body.future_bde_id }).exec(function (err, AllBDEHotels) {
+            Hotel.updateOne({ id: hotel_single.id, bdeId: req.body.current_bde_id }).set({ bdeId:req.body.future_bde_id }).exec(function (err, AllBDEHotels) {
                 callback();
             })
         }, function (err) {
@@ -314,6 +314,20 @@ module.exports = {
             });
         });
     },
+
+
+    Send_Email_Hotels: async (req, res) => {
+
+        let status = req.body.status;
+
+        if(!status){
+            return res.send({ responseCode: 201, data: {}, msg: 'Please provide hotel status' });
+        }
+
+        
+
+
+    }
 
 
 

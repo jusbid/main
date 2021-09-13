@@ -66,12 +66,20 @@ module.exports.GenerateMinifiedImg = function (ImagePath, Quality) {
       var Img_Width = ReadImg.getWidth();
       var Img_Heigth = ReadImg.getHeight();
 
-      if (Img_Width > 700) {
-        var Get_Width = (Img_Width / 100) * 50;
-        var Get_Height = (Img_Heigth / 100) * 50;
-      } else if (Img_Width > 500) {
+      if (Img_Width > 2500) {
+        var Get_Width = (Img_Width / 100) * 20;
+        var Get_Height = (Img_Heigth / 100) * 20;
+      }
+      else if (Img_Width > 1500) {
+        var Get_Width = (Img_Width / 100) * 25;
+        var Get_Height = (Img_Heigth / 100) * 25;
+      }
+      else if (Img_Width > 700) {
         var Get_Width = (Img_Width / 100) * 40;
         var Get_Height = (Img_Heigth / 100) * 40;
+      } else if (Img_Width > 500) {
+        var Get_Width = (Img_Width / 100) * 60;
+        var Get_Height = (Img_Heigth / 100) * 60;
       } else {
         var Get_Width = Img_Width;
         var Get_Height = Img_Heigth;
@@ -388,24 +396,18 @@ module.exports.Set_Missed_Bids = function () {
             }
           }
         });
-
       });
     });
-
   },
-
 
   module.exports.RemoveOlderNotificationByTime = function () {
     let PastDate = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
     Notifications.find({
-      where: {
-        createdAt: {
-          '<': PastDate
-        },
+      where:{
+        createdAt: {  '<': PastDate },
         is_active: true
       }
     }).limit(100).exec(function (err, NotificationData) {
-      //sails.log(NotificationData, 'NotificationData');
       if (NotificationData) {
         NotificationData.forEach(function (value, i) {
           Notifications.destroyOne({ id: value.id }).exec(function (err, NotificationDataSet) { });
@@ -838,12 +840,22 @@ module.exports.Get_Cities = function () {
       "Yamunanagar"
     ],
     "HP": [
+      "Bilaspur",
+      "Chamba",
+      "Hamirpur",
+      "Kangra",
+      "Kinnaur",
+      "Kullu",
+      "Lahaul & Spiti",
+      "Manali",
       "Mandi",
       "Nahan",
       "Palampur",
       "Shimla",
+      "Sirmaur",
       "Solan",
-      "Sundarnagar"
+      "Sundarnagar",
+      "Una"
     ],
     "JK": [
       "Anantnag",
@@ -1468,10 +1480,18 @@ module.exports.Get_Cities = function () {
       "Aruppukkottai",
       "Chennai",
       "Coimbatore",
+      "Coimbatore",
+      "Cuddalore",
+      "Dharmapuri",
+      "Dindigul",
       "Erode",
       "Gobichettipalayam",
-      "Kancheepuram",
+      "Kallakurichi",
+      "Kanchipuram",
+      "Kanyakumari",
       "Karur",
+      "Kodaikanal",
+      "Krishnagiri",
       "Lalgudi",
       "Madurai",
       "Manachanallur",
@@ -1484,6 +1504,7 @@ module.exports.Get_Cities = function () {
       "Natham",
       "Nellikuppam",
       "Neyveli (TS)",
+      "Nilgiris",
       "O' Valley",
       "Oddanchatram",
       "P.N.Patti",
@@ -2629,72 +2650,92 @@ module.exports.Get_Airlines = function () {
       "airline": "Air India",
       "IATA": "AI",
       "ICAO": "AIC",
-      "callsign": "AIRINDIA",
-      "commenced": 1946,
-      "headquarters": "Delhi",
-      "type": "Full Service",
+      // "callsign": "AIRINDIA",
+      // "commenced": 1946,
+      // "headquarters": "Delhi",
+      // "type": "Full Service",
       "image": "airlines/airindia.png"
     },
     {
       "airline": "Vistara",
       "IATA": "UK",
       "ICAO": "VTI",
-      "callsign": "VISTARA",
-      "commenced": 2015,
-      "headquarters": "Gurugram",
-      "type": "Full Service",
+      // "callsign": "VISTARA",
+      // "commenced": 2015,
+      // "headquarters": "Gurugram",
+      // "type": "Full Service",
       "image": "airlines/vistara.png"
     },
     {
       "airline": "Air India Express",
       "IATA": "IX",
       "ICAO": "AXB",
-      "callsign": "EXPRESS INDIA",
-      "commenced": 2005,
-      "headquarters": "Kochi",
-      "type": "Low cost",
+      // "callsign": "EXPRESS INDIA",
+      // "commenced": 2005,
+      // "headquarters": "Kochi",
+      // "type": "Low cost",
       "image": "airlines/airindiaexpress.png"
     },
     {
       "airline": "SpiceJet",
       "IATA": "SG",
       "ICAO": "SEJ",
-      "callsign": "SPICEJET",
-      "commenced": 2005,
-      "headquarters": "Gurugram",
-      "type": "Low cost",
+      // "callsign": "SPICEJET",
+      // "commenced": 2005,
+      // "headquarters": "Gurugram",
+      // "type": "Low cost",
       "image": "airlines/spicejet.png"
     },
     {
       "airline": "Go First",
       "IATA": "G8",
       "ICAO": "GOW",
-      "callsign": "GOAIR",
-      "commenced": 2005,
-      "headquarters": "Mumbai",
-      "type": "Low cost",
+      // "callsign": "GOAIR",
+      // "commenced": 2005,
+      // "headquarters": "Mumbai",
+      // "type": "Low cost",
       "image": "airlines/goair.png"
     },
     {
       "airline": "IndiGo",
       "IATA": "6E",
       "ICAO": "IGO",
-      "callsign": "IFLY",
-      "commenced": 2006,
-      "headquarters": "Gurugram",
-      "type": "Low cost",
+      // "callsign": "IFLY",
+      // "commenced": 2006,
+      // "headquarters": "Gurugram",
+      // "type": "Low cost",
       "image": "airlines/indigo.png"
     },
     {
       "airline": "AirAsia India",
       "IATA": "I5",
       "ICAO": "IAD",
-      "callsign": "RED KNIGHT",
-      "commenced": 2014,
-      "headquarters": "Bengaluru",
-      "type": "Low cost",
+      // "callsign": "RED KNIGHT",
+      // "commenced": 2014,
+      // "headquarters": "Bengaluru",
+      // "type": "Low cost",
       "image": "airlines/airasia.png"
-    }
+    },
+    {
+      "airline": "AirAsia India",
+      "IATA": "I5",
+      "ICAO": "IAD",
+      // "callsign": "RED KNIGHT",
+      // "commenced": 2014,
+      // "headquarters": "Bengaluru",
+      // "type": "Low cost",
+      "image": "airlines/airasia.png"
+    },
+    {
+      "airline": "Hahn Air Lines",
+      "IATA": "H1",
+      "ICAO": "IAD",
+      // "callsign": "RED KNIGHT",
+      // "commenced": 2014,
+      // "headquarters": "Bengaluru",
+      // "type": "Low cost",
+      "image": "airlines/hahn.png"
+    },
 
 
 
@@ -2748,43 +2789,43 @@ module.exports.Backup_MongoDB = function () {
   //new Backup(dbUri, basePath).backup();
 
 
- // var dbUri_ = dbUri;
- 
-//example dbUri with username and password for the database test
-// var dbUri = "mongodb://username:pwd@127.0.0.1:27017/test";
- 
- 
-var basePath = "./backup";
-var Backup = require("backup-mongodb");
- 
-//========= email configs ========
- 
-var emailSubject = "DATABASE BACKUP"; 
-var emailText = "This email contains an attachment of the backup of your mongodb in zip format";
- 
-var smtpOptions = {
- 	host: "smtp.gmail.com",
+  // var dbUri_ = dbUri;
+
+  //example dbUri with username and password for the database test
+  // var dbUri = "mongodb://username:pwd@127.0.0.1:27017/test";
+
+
+  var basePath = "./backup";
+  var Backup = require("backup-mongodb");
+
+  //========= email configs ========
+
+  var emailSubject = "DATABASE BACKUP";
+  var emailText = "This email contains an attachment of the backup of your mongodb in zip format";
+
+  var smtpOptions = {
+    host: "smtp.gmail.com",
     port: "465",
     auth: {
-        user: "khushal.cornice@gmail.com",
-        pass: "Colors9636"
-       },
-    tls : { 
-        rejectUnauthorized: false,
-        secureProtocol: "TLSv1_method",
-        rejectUnauthorized: false
-        }
-    };
- 
- 
-    var emailOptions = {
-        from: "khushal.cornice@gmail.com",
-        to: "khushal.cornice@gmail.com",
-        subject: emailSubject,
-        text: emailText
+      user: "khushal.cornice@gmail.com",
+      pass: "Colors9636"
+    },
+    tls: {
+      rejectUnauthorized: false,
+      secureProtocol: "TLSv1_method",
+      rejectUnauthorized: false
     }
- 
-//======== now do the backup ==========
- 
-new Backup(dbUri, basePath, smtpOptions, emailOptions).backup();
+  };
+
+
+  var emailOptions = {
+    from: "khushal.cornice@gmail.com",
+    to: "khushal.cornice@gmail.com",
+    subject: emailSubject,
+    text: emailText
+  }
+
+  //======== now do the backup ==========
+
+  new Backup(dbUri, basePath, smtpOptions, emailOptions).backup();
 };

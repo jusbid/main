@@ -38,6 +38,8 @@ var readHTMLFile = function (path, callback) {
 
 
 
+
+
 module.exports.sendWelcomeMail = function (obj) {
 
     readHTMLFile('api/emailTemplates/welcomeEmail/html.ejs', function (err, html) {
@@ -152,7 +154,7 @@ module.exports.forgotPassword = function (obj) {
 
 module.exports.HotelAdded = function (hoteldata) {
 
-   
+
 
     readHTMLFile('api/emailTemplates/hotelierWelcome/created.ejs', function (err, html) {
         var template = handlebars.compile(html);
@@ -219,14 +221,22 @@ module.exports.GroupHotelierWelcome = function (userobj, hotels) {
     var full_image_path = "https://www.transindiaholidays.com/Areas/Blog/UploadImages/Id_5c1a0aa3-7794-410a-952f-17ad8dc95c2c.jpg";
     // if (hotel_image) {
     //     full_image_path = 'https://jusbid.in:1337/' + hotel_image;
-    // }
+    let AllNames = [];
+    hotels.forEach(function (hotel, index) {
+        if (hotel.name) {
+            AllNames.push(hotel.name);
+        }
+    });
+
+    let hotel_names = AllNames.join();
+
     readHTMLFile('api/emailTemplates/hotelierWelcome/groupHotelWelcome.ejs', function (err, html) {
         var template = handlebars.compile(html);
         var replacements = {
             email: userobj.email,
             password: userobj.password,
             createdAt: userobj.createdAt,
-            hotels:hotels,
+            hotels: hotel_names,
             full_image_path: full_image_path
         };
         var htmlToSend = template(replacements);
@@ -475,6 +485,35 @@ module.exports.Hotel_Add_Notification_BDM_with_Hotel = function (HotelData, BDE_
             }
         });
     });
+}
+
+
+
+module.exports.Send_Hotel_Mail = function (subject, content, status) {
+
+    Hotel.find({status:status, is_deleted:false}).exec(function (err, allhotels) {
+        async.forEachOf(allhotels, function (hotelspecific, i, callback) {
+
+            var mailOptions = {
+                from: EmailFrom,
+                to: hotelspecific.email,
+                subject: subject,
+                html: content
+            };
+            transporter.sendMail(mailOptions, function (error, response) {
+                if (error) {
+                    sails.log(error);
+                } else {
+                    sails.log(response, 'response email welcome')
+                }
+            });
+
+            callback();
+        });
+
+    });
+
+
 }
 
 

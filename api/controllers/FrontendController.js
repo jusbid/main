@@ -24,7 +24,7 @@ module.exports = {
         async.forEachOf(Searched_hotels, function (value, i, callback) {
             let HotelLatLong = { lat: value.latitude, long: value.longitude }
             // checj by lat long-----------------------------------------------------
-            let CheckLatLong = functions.Check_Lat_Long( UserLatLong,HotelLatLong, 1);
+            let CheckLatLong = functions.Check_Lat_Long( UserLatLong,HotelLatLong, 10);
 
             sails.log(CheckLatLong, 'CheckLatLong');
 
@@ -37,14 +37,15 @@ module.exports = {
                     sails.log(HotelRooms[0].price, 'HotelRooms[0].price');
                     this_hotel.room_price = HotelRooms[0].price;
                 }
+                if(CheckLatLong == true ){
+                    //push this hotel in processed records-----------------------------------------
+                  if(this_hotel)  ProcessedHotels.push(this_hotel); 
+                }
                 
                 callback();
             });
 
-            if(CheckLatLong == true ){
-                //push this hotel in processed records-----------------------------------------
-                ProcessedHotels.push(this_hotel); 
-            }
+            
         }, function (err) {
             //---------------------------------------------------------------------------------
             if(ProcessedHotels.length==0){
@@ -65,7 +66,7 @@ module.exports = {
 
     PopularPlaces: async (req, res) => {
 
-        let popular_hotels = await Hotel.find({ status: 'Approved', is_deleted: false }).sort('rating DESC').limit(100);
+        let popular_hotels = await Hotel.find({  select:['id', 'name', 'view_name', 'image', 'city']  }).where({ status: 'Approved', is_deleted: false }).sort('rating DESC').limit(10000);
         var CitiesArr = [];
         async.forEachOf(popular_hotels, function (value, i, callback) {
             var CityValue = value.city;
@@ -74,7 +75,6 @@ module.exports = {
                 let index = CitiesArr.findIndex(x => x.city == CityValue);
 
                 sails.log(CityCheck, 'CityCheck');
-
 
                 if (CityCheck.length != 0) {
                     CitiesArr[index].hotels = 1 + CitiesArr[index].hotels;

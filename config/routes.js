@@ -81,6 +81,8 @@ module.exports.routes = {
 
   //-------------------Hotel Controller Routing-------------------------------------------------------------
   'POST /onboard-hotel': { controller: 'HotelController', action: 'OnBoard_Hotel' },
+  'POST /onboard-hotel-auto': { controller: 'HotelController', action: 'OnBoard_Hotel_Auto' },
+  
   'POST /create-admin-hotel': { controller: 'HotelController', action: 'Create_Admin_Hotel' },
   'POST /create-hotel-rooms-hotelier': { controller: 'HotelController', action: 'CreateHotelRooms_Hotelier' },
   'POST /edit-hotel-rooms-hotelier': { controller: 'HotelController', action: 'EditHotelRooms_Hotelier' },
@@ -156,14 +158,11 @@ module.exports.routes = {
   'POST /enquiries': { controller: 'MastersController', action: 'Get_Queries' },
   'GET /update-user-field': { controller: 'MastersController', action: 'Update_user_field' },
   'GET /update-addon-field': { controller: 'MastersController', action: 'Update_Addonfield' },
-  
   'GET /update-room-field': { controller: 'MastersController', action: 'Update_room_field' },
   'GET /update-hotel-field': { controller: 'MastersController', action: 'Update_hotel_field' },
   'GET /update-hotel-createdate': { controller: 'MastersController', action: 'Update_hotel_createdate' },
   'GET /update-hotelier-id': { controller: 'MastersController', action: 'Update_hotelier_id' },
 
-  
-  
 
   //-------------------Admin Dashboard-------------------------------------------------------------------
   'GET /get-dashboard-counts': { controller: 'AdminController', action: 'Get_Dashboard_Counts' },
@@ -174,9 +173,6 @@ module.exports.routes = {
   'POST /get-mybde-travelagents': { controller: 'AdminController', action: 'Get_TravelAgents_BDM' },
   'POST /update-hotel-bde': { controller: 'AdminController', action: 'Update_Hotel_Bde' },
   'POST /update-all-hotels-tobde': { controller: 'AdminController', action: 'Update_All_Hotel_toBde' },
-  
-
-  
 
   //-------------------Bid / Booking Controller----------------------------------------------------------------
   'POST /place-bid': { controller: 'BidController', action: 'Place_Bid' },
@@ -333,6 +329,10 @@ module.exports.routes = {
   'POST /search-flight': { controller: 'FlightController', action: 'Search_Low_Fare_Flight' },
   'GET /airports': { controller: 'FlightController', action: 'Get_Airports' },
   'GET /airlines': { controller: 'FlightController', action: 'Get_Airlines' },
+
+  //-----------------------Utlity Controller------------------------------------------------------------------------------------------------
+  'GET /rename-city': { controller: 'UtilityController', action: 'View_Change_City' },
+  'POST /update-city-now': { controller: 'UtilityController', action: 'Update_Cities' },
 
   
 };

@@ -11,7 +11,7 @@ module.exports.cron = {
 
 
     RemoveOlderNotification: {
-        schedule: '00 00 12 * * 0-6',
+        schedule: '*/10 * * * * *',
         onTick: function () {
             functions.RemoveOlderNotificationByTime();
             sails.log('Running Missed SLA function CRON service');
