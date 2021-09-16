@@ -776,7 +776,7 @@ module.exports = {
         let TempPage = Page - 1;
 
         var UserData;
-        UserData = await SystemUser.findOne({ userId: userId });
+        UserData = await SystemUser.findOne({  select:['userId', 'role', 'city', 'state', 'zone'] }).where({userId: userId});
         if (!UserData) {
             UserData = await User.findOne({ userId: userId });
             is_systemuser = false;

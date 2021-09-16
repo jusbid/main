@@ -760,6 +760,61 @@ module.exports = {
 
 
 
+    Accept_Reject_Bid_Link:async (req, res) => {
+
+      let bid_series = req.param('bid_series');
+      let reqBid = req.param('reqBid');
+
+
+      let BidData = await Bids.findOne({ series: bid_series });
+
+      if(!BidData){
+        return res.send({ responseCode: 201, msg: 'Bid not found' });
+      }
+
+      if(BidData.status == reqBid){
+        return res.send({ responseCode: 200, msg: 'Bid have been already updated with status: '+reqBid });
+      }
+
+      let UpdatedBid = await Bids.updateOne({ series: bid_series }).set({ status: reqBid });
+
+      if(UpdatedBid){
+        return res.send({ responseCode: 200, msg: 'Bid have been updated successfully with status: '+reqBid });
+      }else{
+        return res.send({ responseCode: 201, msg: 'Bid not updated, please try again..' });
+      }
+
+    },
+
+
+    Update_Bid_Price:async (req, res) => {
+
+        let bid_series = req.body.bid_series;
+
+        if (!bid_series || !req.body.status || !req.body.bid_price || !req.body.tax_class) {
+            return res.send({ responseCode: 201, msg: 'Please provide booking ID' });
+        }
+
+        let BookingUpdatedData = await Bids.updateOne({ series: bid_series }).set({ status: req.body.status, price:bid_price, taxClass :req.body.tax_class });
+
+        if (!BookingUpdatedData) {
+            //--------------send notification regrading updates------------------------------------------------------------------------------------------
+
+            NotificationsFunctions.Hotelier_User_Notification_Bidding(BookingUpdatedData.hotel_id, BookingUpdatedData.userId, BookingUpdatedData.hotel_name, BookingUpdatedData.days, BidSeries);
+            NotificationsFunctions.SendPush_Single('Bid Updated Successfully', 'Bid for reserving hotel room on ' + BookingUpdatedData.hotel_name + ' has been updated successfully, please wait for hotelier approval', userId);
+            NotificationsFunctions.CreateFrontUserNotification('Bid Updated Successfully', 'Bid for reserving hotel room on ' + BookingUpdatedData.hotel_name + ' has been Updated successfully, please wait for hotelier approval', userId);
+
+            //-------------------------------------------------------------------------------------------------------------------------------------------
+            return res.send({ responseCode: 201, msg: 'Booking status not updated, please try again..' });
+        } else {
+            return res.send({ responseCode: 200, msg: 'Booking updated successfully', data: BookingUpdatedData });
+
+        }
+
+    }
+
+
+
 
 
 

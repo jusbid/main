@@ -25,11 +25,14 @@ module.exports = {
             let HotelLatLong = { lat: value.latitude, long: value.longitude }
             // checj by lat long-----------------------------------------------------
             let CheckLatLong = functions.Check_Lat_Long( UserLatLong,HotelLatLong, 10);
-
-            sails.log(CheckLatLong, 'CheckLatLong');
+            //set original image link--------------------------------
+            if(value.image){
+                Searched_hotels[i].org_image=value.image.replace('_min', '')
+            }
+           // sails.log(CheckLatLong, 'CheckLatLong');
 
             HotelRooms.find({ hotel_id: value.id }).sort('price ASC').exec(function (err, HotelRooms) {
-                sails.log(HotelRooms, 'HotelRooms');
+                //sails.log(HotelRooms, 'HotelRooms');
                 let this_hotel = value;
                 if (HotelRooms.length == 0) {
                     this_hotel.room_price = null;
@@ -96,6 +99,22 @@ module.exports = {
                 callback();
             });
         }, function (err) {
+
+            //---------------------Sort by city hotel numbers----------------------------------------------------
+
+              CitiesArr = CitiesArr.sort(function(a, b) {
+                var keyA = a.hotels,
+                  keyB = b.hotels;
+                if (keyA > keyB) return -1;
+                if (keyA < keyB) return 1;
+                return 0;
+              });
+              CitiesArr = CitiesArr.filter((city,idx) => idx < 24);
+
+              //send only some popular hotels-------------------------------
+              popular_hotels = popular_hotels.filter((hotel,idz) => idz < 10);
+            //----------------------------------------------------------------------
+
             let SendData = {
                 popular_hotels: popular_hotels,
                 popular_cities: CitiesArr

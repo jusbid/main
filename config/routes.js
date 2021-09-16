@@ -163,7 +163,6 @@ module.exports.routes = {
   'GET /update-hotel-createdate': { controller: 'MastersController', action: 'Update_hotel_createdate' },
   'GET /update-hotelier-id': { controller: 'MastersController', action: 'Update_hotelier_id' },
 
-
   //-------------------Admin Dashboard-------------------------------------------------------------------
   'GET /get-dashboard-counts': { controller: 'AdminController', action: 'Get_Dashboard_Counts' },
   'POST /get-bdm-dashboard-counts': { controller: 'AdminController', action: 'Get_BDM_Dashboard_Counts' },
@@ -198,6 +197,10 @@ module.exports.routes = {
   'POST /cancel-my-bidding': { controller: 'BidController', action: 'Cancel_Bid' },
   'PUT /booking-dates': { controller: 'BidController', action: 'Update_Booking_Date' },
   'POST /update-booking-room-status': { controller: 'BidController', action: 'Update_Booking_Room_Status' },
+  'GET /bid-update-link/:bid_series/:reqBid': { controller: 'BidController', action: 'Accept_Reject_Bid_Link' },
+  'POST /update-bid-price': { controller: 'BidController', action: 'Update_Bid_Price' },
+  
+  
 
   //-------------------Hotelier Controller----------------------------------------------------------------
   'POST /hotelier-counts': { controller: 'HotelierController', action: 'Hotelier_Dashboard_Counts' },

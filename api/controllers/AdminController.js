@@ -207,7 +207,7 @@ module.exports = {
             })
         }, function (err) {
             if(err){sails.log(err, 'error on bde multi update')}
-                return res.send({ responseCode: 200, msg: "Bde updated successfully" });
+                return res.send({ responseCode: 200, msg: "Bde updated successfully: "+hotel_data.length+" hotel(s) data updated" });
         });
     },
 

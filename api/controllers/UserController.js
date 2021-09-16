@@ -112,7 +112,7 @@ module.exports = {
                 if (!result) {
                     return res.send({ responseCode: 201, msg: 'User not saved', err: err });
                 } else {
-                    mailer.sendAgentMail(result);
+                    mailer.sendWelcomeMail(result);
                     return res.send({ responseCode: 200, msg: 'Your account has been created successfully, please wait for approval', data: result });
                 }
             })
@@ -507,7 +507,7 @@ module.exports = {
 
                         result.BankDetailsData = BankDetailsData;
 
-                        //mailer.sendAgentMail(result);
+                        mailer.sendAgentMail(result);
 
                         NotificationsFunctions.AgentAddNotification_BDM_BDE(req.body.parent_bde, req.body.agent_name);
                         return res.send({ responseCode: 200, msg: 'Agent created successfully', data: result });
