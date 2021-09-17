@@ -1204,10 +1204,9 @@ module.exports = {
         return res.send({ responseCode: 200, msg: 'User Removed' });
     },
 
-
     Search_BDE_TravelAgents: async (req, res) => {
 
-        var fieldsSelect = ['id', 'userId', 'firstname', 'lastname', 'parent_bdm', 'parent_bde', 'hotel_id', 'role', 'status', 'address', 'mobile', 'company_name', 'profile_img', 'city', 'state', 'country', 'address', 'landmark'];
+        var fieldsSelect = ['id', 'userId', 'firstname', 'lastname', 'email', 'parent_bdm', 'parent_bde', 'hotel_id', 'role', 'status', 'address', 'mobile', 'company_name', 'profile_img', 'city', 'state', 'country', 'address', 'landmark'];
         var search_key = req.body.search_key;
         var UserData = [];
 

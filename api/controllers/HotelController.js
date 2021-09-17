@@ -377,7 +377,8 @@ module.exports = {
             seasonal_months: req.body.seasonal_months,
             star_rating: req.body.star_rating,
             is_multichain: req.body.is_multichain,
-            secondary_email: req.body.secondary_email
+            secondary_email: req.body.secondary_email,
+            total_rooms: req.body.total_rooms
 
         }).fetch();
 
@@ -628,7 +629,6 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'Please provide hotel_id to update..' });
         }
 
-
         let HotelData = await Hotel.update({ id: req.body.hotel_id }).set({
             bdeId: req.body.bde_id,
             name: req.body.name,
@@ -671,10 +671,11 @@ module.exports = {
             commission: req.body.commission,
             star_rating: req.body.star_rating,
             secondary_email: req.body.secondary_email,
-            is_multichain: req.body.is_multichain
+            is_multichain: req.body.is_multichain,
+            //--------------------------------------------------------------------------
+            total_rooms: req.body.total_rooms
 
         });
-
         return res.send({ responseCode: 200, msg: 'Hotel data saved successfully', data: HotelData });
 
     },

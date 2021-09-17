@@ -713,7 +713,6 @@ module.exports = {
 
     },
 
-
     Update_Booking_Customer_Details: async (req, res) => {
 
         let booking_id = req.body.booking_id;

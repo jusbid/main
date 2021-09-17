@@ -278,7 +278,7 @@ module.exports = {
                                 HotelData[i].bde_name = UserData.firstname + ' ' + UserData.lastname;
                             }
                             callback();
-                        })
+                        });
                     } else {
                         callback();
                     }
@@ -323,9 +323,6 @@ module.exports = {
         if(!status){
             return res.send({ responseCode: 201, data: {}, msg: 'Please provide hotel status' });
         }
-
-        
-
 
     }
 
