@@ -333,6 +333,9 @@ module.exports.routes = {
   'GET /airports': { controller: 'FlightController', action: 'Get_Airports' },
   'GET /airlines': { controller: 'FlightController', action: 'Get_Airlines' },
 
+  'POST /ticket-pnr-generation': { controller: 'FlightController', action: 'TicketPNRGeneration' },
+  
+
   //-----------------------Utlity Controller------------------------------------------------------------------------------------------------
   'GET /rename-city': { controller: 'UtilityController', action: 'View_Change_City' },
   'POST /update-city-now': { controller: 'UtilityController', action: 'Update_Cities' },

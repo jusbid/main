@@ -403,8 +403,8 @@ module.exports.Set_Missed_Bids = function () {
   module.exports.RemoveOlderNotificationByTime = function () {
     let PastDate = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
     Notifications.find({
-      where:{
-        createdAt: {  '<': PastDate },
+      where: {
+        createdAt: { '<': PastDate },
         is_active: true
       }
     }).limit(100).exec(function (err, NotificationData) {
@@ -1770,18 +1770,22 @@ module.exports.Get_Cities = function () {
       "Zamania"
     ],
     "UK": [
+      "Almora",
       "Bageshwar",
+      "Corbett",
       "Dehradun",
       "Haldwani-cum-Kathgodam",
-      "Hardwar",
+      "Haridwar",
       "Kashipur",
       "Manglaur",
+      "Mukteshwar",
       "Mussoorie",
       "Nagla",
       "Nainital",
       "Pauri",
       "Pithoragarh",
       "Ramnagar",
+      "Ranikhet",
       "Rishikesh",
       "Roorkee",
       "Rudrapur",

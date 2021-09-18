@@ -2,9 +2,11 @@ var FCM = require('fcm-node');
 var serverKey = 'AAAATPw389w:APA91bHtDRSTw393k5oSaY91fNgg9GiDUTO6hnpdxZRUO4JEgmDtL6AS9VzLttMU5pgVRBmwfpqKxZISoMPjRQJBR1gHF1qDYUr0_cE8KvtWspqHilMHZa2CKAC3YBD5k0BOrRCNKUnL';
 var fcm = new FCM(serverKey);
 var async = require('async');
-
+var request = require('request');
 var HotelierServerKey = 'AAAAEjaS2VQ:APA91bGNMkEKwHVqaMQFDcrqr1iC9YZWjgpiT82kgvLh3Gh98MH2O4QXmYegAP1HcEPWkB5dd7S2j_w_8gqJsbLQW5AynwRVSnjwTeCXRPdObqmPar2l4c2ItNnrXg-2io1m4YRjufij';
 var fcmHotelier = new FCM(HotelierServerKey);
+//----------------------------------------------------------------
+var SenderWhattsup = '919785558507';
 
 module.exports.SendPush_Single = function (title, body, userId) {
     User.findOne({ select: ['userId', 'id', 'firstname', 'uuid', 'deviceToken'] }).where({ userId: userId }).exec(function (err, UserData) {
@@ -209,7 +211,7 @@ module.exports.CreateForBDM_CC = function (subject, message, type, parent_id) {
 };
 
 
-module.exports.Hotelier_User_Notification_Bidding = function (hotel_id, userId, hotel_name, days, BidSeries) {
+module.exports.Hotelier_User_Notification_Bidding = function (hotel_id, userId, hotel_name, days, BidSeries, price, arrival, departure) {
 
     let msg = '#' + BidSeries + ' bid placed successfully for booking on ' + hotel_name + ' for ' + days + ' day(s)';
 
@@ -243,9 +245,8 @@ module.exports.Hotelier_User_Notification_Bidding = function (hotel_id, userId, 
                     });
 
                     //--------------------------------------------------Whattsup Notification-----------------------------------------------------------------------------
-
-                    
-
+                    let whattsup_msg = BidSeries+" bid placed successfully for booking on your hotel royal ram pratap niwas for "+days+" day(s) from "+arrival+" to "+departure+",bid price for this stay is "+price+"/-, \n please confirm, you can accept/reject by using given below links or you can direct manage this bid by using WebAppor MobileApp, \n  Thanks, \n Team Jusbid, \n 919998887778 \n\n To accept:https://jusbid.in:1337/bid-update-link/#UDRRPC121234/Accepted To Reject:https://jusbid.in:1337/bid-update-link/#UDRRPC121234/Rejected";
+                    if(Hotelier_data.mobile) Text_Whattsup('91'+Hotelier_data.mobile, whattsup_msg);
                     //-----------------------------------------------------------------------------------------------------------------------------------------------------
                 }
 
@@ -255,24 +256,62 @@ module.exports.Hotelier_User_Notification_Bidding = function (hotel_id, userId, 
 },
 
 
-    module.exports.Update_Notification_Bidding = function (hotel_id, userId, msg) {
+    //---------------------------------------------------------------Whattsup Notification Functions----------------------------------------------------------------
 
-        User.findOne({
-            userId: userId
-        }).exec(function (err, BDE_Data) {
+    function Text_Whattsup(senderMobile, textContent) {
 
-            Notifications.create({
+        let url = 'https://' + DomainWhattsup + '/pull-platform-receiver/wa/messages';
+        let PayloadData = {
+            "messages": [
+                {
+                    "sender": SenderWhattsup,
+                    "to": senderMobile,
+                    "messageId": "ABEGkXgnERdEAhBFhZ9lJEa99Gu_B3vA",
+                    "channel": "WA",
+                    "type": "text",
+                    "text": {
+                        "content": textContent
+                    }
+                }
+            ],
+            "responseType": "json"
+        }
 
-                subject: "Bid has been updated by hotelier",
-                message: msg,
-                role: 3,
-                type: "Bid_Updated",
-                userId: userId
-
-            }).fetch().exec(function (err, result) {
-            });
+        request({
+            method: 'POST',
+            url: URL,
+            body:PayloadData,
+            json: true
+        }, function (error, response, body) {
+            sails.log(response, 'Test_Single_SMS');
+            if (error) {
+                sails.log(error);
+            } else {
+                sails.log(body);
+            }
         });
-    },
+
+    }
+
+
+module.exports.Update_Notification_Bidding = function (hotel_id, userId, msg) {
+
+    User.findOne({
+        userId: userId
+    }).exec(function (err, BDE_Data) {
+
+        Notifications.create({
+
+            subject: "Bid has been updated by hotelier",
+            message: msg,
+            role: 3,
+            type: "Bid_Updated",
+            userId: userId
+
+        }).fetch().exec(function (err, result) {
+        });
+    });
+},
 
     module.exports.Hotelier_User_Notification_Cancellation = function (BookingData) {
 

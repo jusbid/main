@@ -122,7 +122,6 @@ module.exports.Reject_Bid_SMS = function (R_Bid_SMS, mobileSend) {
 
 }
 
-
 module.exports.Send_Single_SMS_Test = function () {
 
   let mobileSend = "9785558507";
@@ -142,8 +141,6 @@ module.exports.Send_Single_SMS_Test = function () {
   });
 
 }
-
-
 
 
 module.exports.Send_OTP_SMS = function (mobile_no, OTP) {
@@ -182,12 +179,6 @@ module.exports.Remove_Hotel_File = function (unlink_path, unlink_min_path) {
 }
 
 
-
-
-
-
-
-
 module.exports.CheckToken = function (ciphertext) {
   var JusbidKey = "jusbid key2020";
 
@@ -196,16 +187,11 @@ module.exports.CheckToken = function (ciphertext) {
 
   sails.log(originalText, 'originalText-', ciphertext);
 
-
-
-
   if (!originalText) {
     return false;
   } else {
     return true;
   }
-
-
 
 }
 

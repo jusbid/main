@@ -24,7 +24,7 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'Please provide all keys to place a new bid..' });
         }
 
-        let UserData = await User.findOne({userId: userId});
+        let UserData = await User.findOne({ userId: userId });
         //let HotelData = await User.findOne({select:['id', 'downfall']});
 
         let CurrentDate = new Date()
@@ -79,10 +79,12 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'Bid not placed', err: err });
         } else {
             //----------------Notifications-------------------------------------------------------------------------------
-           NotificationsFunctions.Hotelier_User_Notification_Bidding(CreatedBid.hotel_id, CreatedBid.userId, CreatedBid.hotel_name, CreatedBid.days, BidSeries);
-           NotificationsFunctions.SendPush_Single('Bid Placed Successfully', 'Bid for reserving hotel room on ' + CreatedBid.hotel_name + ' has been placed successfully, please wait for hotelier approval', userId);
-           NotificationsFunctions.CreateFrontUserNotification('Bid Placed Successfully', 'Bid for reserving hotel room on ' + CreatedBid.hotel_name + ' has been placed successfully, please wait for hotelier approval', userId);
-           return res.send({ responseCode: 200, msg: 'Bid placed successfully', data: CreatedBid });
+            NotificationsFunctions.Hotelier_User_Notification_Bidding(CreatedBid.hotel_id, CreatedBid.userId, CreatedBid.hotel_name, CreatedBid.days, BidSeries, CreateBid.price, CreateBid.arrival_date, createdBid.departure_date);
+            NotificationsFunctions.SendPush_Single('Bid Placed Successfully', 'Bid for reserving hotel room on ' + CreatedBid.hotel_name + ' has been placed successfully, please wait for hotelier approval', userId);
+            NotificationsFunctions.CreateFrontUserNotification('Bid Placed Successfully', 'Bid for reserving hotel room on ' + CreatedBid.hotel_name + ' has been placed successfully, please wait for hotelier approval', userId);
+            //------------------------------------------------------------------------------------------------
+            //NotificationsFunctions.
+            return res.send({ responseCode: 200, msg: 'Bid placed successfully', data: CreatedBid });
 
         }
 
@@ -138,9 +140,9 @@ module.exports = {
         if (!CreatedBid) {
             return res.send({ responseCode: 201, msg: 'Bid not saved', err: err });
         } else {
-            let R_Bid_SMS ='Hello '+firstname+', Your Bid for Hotel '+hotel_name+' of '+bid_price+' has been rejected please make changes and rebid. Thank you Team Jusbid';
-           // let R_Bid_SMS = 'Bid for reserving hotel room on ' + CreatedBid.hotel_name + ' has been placed successfully, please wait for hotelier approval';
-         //   NotificationsFunctions.SendPush_Single('Bid Rejected', R_Bid_SMS, userId);
+            let R_Bid_SMS = 'Hello ' + firstname + ', Your Bid for Hotel ' + hotel_name + ' of ' + bid_price + ' has been rejected please make changes and rebid. Thank you Team Jusbid';
+            // let R_Bid_SMS = 'Bid for reserving hotel room on ' + CreatedBid.hotel_name + ' has been placed successfully, please wait for hotelier approval';
+            //   NotificationsFunctions.SendPush_Single('Bid Rejected', R_Bid_SMS, userId);
 
             return res.send({ responseCode: 200, msg: 'Bid Saved successfully', data: CreatedBid });
         }
@@ -236,7 +238,7 @@ module.exports = {
                     if (HotelData) {
                         BookingsAll[i].image = HotelData.image;
                         //--adding extra keys to hotel details--------------------------------
-                        BookingsAll[i].hotel_address = HotelData.address+', '+HotelData.city+', '+HotelData.state;
+                        BookingsAll[i].hotel_address = HotelData.address + ', ' + HotelData.city + ', ' + HotelData.state;
                         BookingsAll[i].latitude = HotelData.latitude;
                         BookingsAll[i].longitude = HotelData.longitude;
                         BookingsAll[i].mobile = HotelData.mobile;
@@ -473,36 +475,41 @@ module.exports = {
         if (!BidsUpdated) {
             return res.send({ responseCode: 201, msg: 'Bid not updated' });
         } else {
-            let sms_msg = "Your Bid "+BidsUpdated.series+" for Hotel "+BidsUpdated.hotel_name+" of "+BidsUpdated.price+" has been Accepted for date "+BidsUpdated.arrival_date+", Days "+BidsUpdated.days+", Please Hurry up to Grab the best deal and book now!";
-            if(UserData){
-                if(status == "Approved"){
+            let sms_msg = "Your Bid " + BidsUpdated.series + " for Hotel " + BidsUpdated.hotel_name + " of " + BidsUpdated.price + " has been Accepted for date " + BidsUpdated.arrival_date + ", Days " + BidsUpdated.days + ", Please Hurry up to Grab the best deal and book now!";
+            if (UserData) {
+                if (status == "Approved") {
                     functions2.Send_Single_SMS(UserData.mobile, sms_msg);
                 }
-                else if(status == "Rejected"){
+                else if (status == "Rejected") {
                     //-----------set first variable----------------------------------------------------------------
                     let firstVar = "";
-                    if(reasonVar.includes("increase")){
+                    if (reasonVar.includes("increase")) {
                         firstVar = "lower bid amount";
                     }
-                    else if(reasonVar.includes("valid details")){
+                    else if (reasonVar.includes("valid details")) {
                         firstVar = "inappropriate details";
                     }
-                    else if(reasonVar.includes("another room")){
+                    else if (reasonVar.includes("another room")) {
                         firstVar = "selected room not available";
                     }
-                    else if(reasonVar.includes("another hotel")){
+                    else if (reasonVar.includes("another hotel")) {
                         firstVar = "all rooms sold out";
                     }
-                    else{
+                    else {
                         firstVar = "hotel unavailability";
                     }
                     //-----------set first variable ends----------------------------------------------------------------
-                    let NewSMSContent = "Hello, Bid for hotel "+BidsUpdated.hotel_name+" is declined due to "+firstVar+", please "+reasonVar+".\nTeam Jusbid";
+                    let NewSMSContent = "Hello, Bid for hotel " + BidsUpdated.hotel_name + " is declined due to " + firstVar + ", please " + reasonVar + ".\nTeam Jusbid";
                     functions2.Reject_Bid(NewSMSContent, UserData.mobile);
+                    //-----------send whattsup notification--------------------------------------------------------------
+                    NotificationsFunctions.Text_Whattsup('91' + UserData.mobile, NewSMSContent);
                 }
             }
             NotificationsFunctions.Update_Bid_Notifications(BidsUpdated);
-            if (status == "Approved") { mailer.Approved_Bidding(BidsUpdated); }
+            if (status == "Approved") {
+                mailer.Approved_Bidding(BidsUpdated);
+                NotificationsFunctions.Text_Whattsup('91' + UserData.mobile, BidsUpdated);
+            }
             NotificationsFunctions.SendPush_Single('Bid Updated!', 'Bid for reserving hotel room on ' + BidsUpdated.hotel_name + ' have been updated with current status as ' + req.body.status + ', please check bid listing for further instructions', BidsUpdated.userId);
             return res.send({ responseCode: 200, msg: 'Bid updated successfully', data: BidsUpdated });
         }
@@ -669,9 +676,12 @@ module.exports = {
             userdata.BookingData = BookingData;
             mailer.sendBookingConfirmation(userdata);
             mailer.sendBookingConfirmationToHotelier(userdata);
+            //------------------send notifications--------------------------------------------
             NotificationsFunctions.SendBookingPayment(userdata);
-            NotificationsFunctions.SendPush_Single('Booking Confirmed Successfully!', 'Booking for reserving hotel room on ' + BidsUpdated.hotel_name + ' has been confimed, please check bookings for further instructions', BidsUpdated.userId);
-            NotificationsFunctions.CreateFrontUserNotification('Booking Confirmed Successfully!', 'Booking for reserving hotel room on ' + BidsUpdated.hotel_name + ' has been confimed, please check bookings for further instructions', BidsUpdated.userId);
+            let NotificationTxt = 'Booking for reserving hotel room on ' + BidsUpdated.hotel_name + ' has been confimed, please check bookings for further instructions';
+            NotificationsFunctions.SendPush_Single('Booking Confirmed Successfully!', NotificationTxt ,BidsUpdated.userId );
+            NotificationsFunctions.CreateFrontUserNotification('Booking Confirmed Successfully!', NotificationTxt, BidsUpdated.userId);
+            NotificationsFunctions.Text_Whattsup('91'+userdata.mobile, NotificationTxt);
             if (BookingData) {
                 return res.send({ responseCode: 200, msg: 'Booking generated', data: BookingData });
             } else {
@@ -759,34 +769,34 @@ module.exports = {
 
 
 
-    Accept_Reject_Bid_Link:async (req, res) => {
+    Accept_Reject_Bid_Link: async (req, res) => {
 
-      let bid_series = req.param('bid_series');
-      let reqBid = req.param('reqBid');
+        let bid_series = req.param('bid_series');
+        let reqBid = req.param('reqBid');
 
 
-      let BidData = await Bids.findOne({ series: bid_series });
+        let BidData = await Bids.findOne({ series: bid_series });
 
-      if(!BidData){
-        return res.send({ responseCode: 201, msg: 'Bid not found' });
-      }
+        if (!BidData) {
+            return res.send({ responseCode: 201, msg: 'Bid not found' });
+        }
 
-      if(BidData.status == reqBid){
-        return res.send({ responseCode: 200, msg: 'Bid have been already updated with status: '+reqBid });
-      }
+        if (BidData.status == reqBid) {
+            return res.send({ responseCode: 200, msg: 'Bid have been already updated with status: ' + reqBid });
+        }
 
-      let UpdatedBid = await Bids.updateOne({ series: bid_series }).set({ status: reqBid });
+        let UpdatedBid = await Bids.updateOne({ series: bid_series }).set({ status: reqBid });
 
-      if(UpdatedBid){
-        return res.send({ responseCode: 200, msg: 'Bid have been updated successfully with status: '+reqBid });
-      }else{
-        return res.send({ responseCode: 201, msg: 'Bid not updated, please try again..' });
-      }
+        if (UpdatedBid) {
+            return res.send({ responseCode: 200, msg: 'Bid have been updated successfully with status: ' + reqBid });
+        } else {
+            return res.send({ responseCode: 201, msg: 'Bid not updated, please try again..' });
+        }
 
     },
 
 
-    Update_Bid_Price:async (req, res) => {
+    Update_Bid_Price: async (req, res) => {
 
         let bid_series = req.body.bid_series;
 
@@ -794,7 +804,7 @@ module.exports = {
             return res.send({ responseCode: 201, msg: 'Please provide booking ID' });
         }
 
-        let BookingUpdatedData = await Bids.updateOne({ series: bid_series }).set({ status: req.body.status, price:bid_price, taxClass :req.body.tax_class });
+        let BookingUpdatedData = await Bids.updateOne({ series: bid_series }).set({ status: req.body.status, price: bid_price, taxClass: req.body.tax_class });
 
         if (!BookingUpdatedData) {
             //--------------send notification regrading updates------------------------------------------------------------------------------------------
