@@ -213,7 +213,7 @@ module.exports = {
 
         let Hotels = await Hotel.find({ email: req.body.email });
 
-        if (Hotels) {
+        if (Hotels.length!=0) {
             return res.send({ responseCode: 200, data: Hotels, msg: 'Hotels Fetched!' });
         } else {
             return res.send({ responseCode: 201, data: Hotels, msg: 'Unable to find group hotels using this email address!' });
@@ -239,7 +239,7 @@ module.exports = {
             }
             return res.send({ responseCode: 200, data: Hotelier, msg: 'Hotels Fetched!' });
         } else {
-            return res.send({ responseCode: 201, data: Hotelier, msg: 'Unable to find group hotels using this email address!' });
+            return res.send({ responseCode: 201, data: Hotelier, msg: 'Unable to find group hotels using these credentials!' });
         }
 
     },

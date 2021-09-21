@@ -60,7 +60,7 @@ module.exports.routes = {
   'POST /update-device-token': { controller: 'UserController', action: 'Update_User_Token' },
   'GET /update-column': { controller: 'UserController', action: 'Update_Column' },
 
-  //-------------------System User Controller Functionality Routes-----------------------------------
+  //-------------------------System User Controller Functionality Routes-----------------------------------
   'POST /create-admin': { controller: 'SystemUserController', action: 'Create_Admin' },
   'POST /system-user': { controller: 'SystemUserController', action: 'Create_System_User' },
   'PUT /system-user': { controller: 'SystemUserController', action: 'Update_System_User' },
@@ -230,8 +230,6 @@ module.exports.routes = {
   'GET /get-hotel-categories': { controller: 'MastersController', action: 'Get_HotelCategories' },
   'GET /backup': { controller: 'MastersController', action: 'Dump_Backup_DB' },
   'GET /sms': { controller: 'MastersController', action: 'Sample_SMS' },
-  
-
 
   // ---------------------------------------------------API ROUTES ENDS---------------------------------------
 
@@ -248,7 +246,6 @@ module.exports.routes = {
   'POST /send-notification-all': { controller: 'MastersController', action: 'Notification_All' },
   'GET /SaveTest_Notifications': { controller: 'MastersController', action: 'SaveTest_Notifications' },
   'POST /mark-read-notification': { controller: 'MastersController', action: 'Mark_Read_Notifications' },
-
 
   //--------------------------Frontend Controller--------------------------------------------------------------
 
@@ -267,7 +264,6 @@ module.exports.routes = {
   'POST /save-payment-record': { controller: 'PaymentController', action: 'Save_Payment_Record' },
   'GET /get-all-payments': { controller: 'PaymentController', action: 'Get_All_Payments' },
   'POST /get-payments-bydate': { controller: 'PaymentController', action: 'Get_Payments_ByDate' },
-
   'POST /get-all-hotel-payments': { controller: 'PaymentController', action: 'Get_All_Hotel_Payments' },
   'POST /get-hotel-counts': { controller: 'PaymentController', action: 'Get_Hotel_Counts' },
   'GET /payment-thankyou': { controller: 'PaymentController', action: 'Payment_Thanks' },
@@ -277,7 +273,6 @@ module.exports.routes = {
   'POST /initiate-speed-refund': { controller: 'PaymentController', action: 'Init_Refund_Service' },
   'POST /app-payment': { controller: 'PaymentController', action: 'App_Payments' },
   'POST /generate-order-rzp': { controller: 'PaymentController', action: 'Generate_Order_Request_RZP' },
-
 
   //---------------------------Refund Controller---------------------------------------------------------------
   'Get /get-all-refunds': { controller: 'RefundController', action: 'Get_Booking_Refunds' },
@@ -325,16 +320,12 @@ module.exports.routes = {
   'POST /create-hotel-rooms': { controller: 'DeprecatedController', action: 'CreateHotelRooms' },
   'POST /create-hotel': { controller: 'DeprecatedController', action: 'CreateHotel' },
 
-  
-
   //-----------------------------Flight Controller-----------------------------------------------------------------------------------------------------
   'POST /flight-pricing': { controller: 'FlightController', action: 'Get_Flight_Pricing' },
   'POST /search-flight': { controller: 'FlightController', action: 'Search_Low_Fare_Flight' },
   'GET /airports': { controller: 'FlightController', action: 'Get_Airports' },
   'GET /airlines': { controller: 'FlightController', action: 'Get_Airlines' },
-
   'POST /ticket-pnr-generation': { controller: 'FlightController', action: 'TicketPNRGeneration' },
-  
 
   //-----------------------Utlity Controller------------------------------------------------------------------------------------------------
   'GET /rename-city': { controller: 'UtilityController', action: 'View_Change_City' },

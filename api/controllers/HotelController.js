@@ -98,7 +98,9 @@ module.exports = {
                 is_multichain: req.body.is_multichain,
                 secondary_email: req.body.secondary_email,
                 //-----------------------------------------
-                total_rooms:req.body.total_rooms
+                total_rooms:req.body.total_rooms,
+                is_using_cp: req.body.is_using_cp,
+                reg_ota: req.body.reg_ota
 
             }).fetch().exec(function (err, HotelData) {
 
@@ -261,7 +263,11 @@ module.exports = {
                                 seasonal_months: req.body.seasonal_months,
                                 star_rating: req.body.star_rating,
                                 is_multichain: req.body.is_multichain,
-                                secondary_email: req.body.secondary_email
+                                secondary_email: req.body.secondary_email,
+                                //---------------------------------------
+                                total_rooms:req.body.total_rooms,
+                                is_using_cp: req.body.is_using_cp,
+                                reg_ota: req.body.reg_ota
 
                             }).fetch().exec(function (err, HotelData) {
 
@@ -378,7 +384,9 @@ module.exports = {
             star_rating: req.body.star_rating,
             is_multichain: req.body.is_multichain,
             secondary_email: req.body.secondary_email,
-            total_rooms: req.body.total_rooms
+            total_rooms: req.body.total_rooms,
+            is_using_cp: req.body.is_using_cp,
+            reg_ota: req.body.reg_ota
 
         }).fetch();
 
@@ -673,7 +681,9 @@ module.exports = {
             secondary_email: req.body.secondary_email,
             is_multichain: req.body.is_multichain,
             //--------------------------------------------------------------------------
-            total_rooms: req.body.total_rooms
+            total_rooms:req.body.total_rooms,
+            is_using_cp: req.body.is_using_cp,
+            reg_ota: req.body.reg_ota
 
         });
         return res.send({ responseCode: 200, msg: 'Hotel data saved successfully', data: HotelData });
@@ -1466,21 +1476,21 @@ module.exports = {
 
     },
 
-    // Restricted_Remove_Hotel: async (req, res) => {
+    Restricted_Remove_Hotel: async (req, res) => {
 
-    //     if (!req.body.hotel_id) {
-    //         return res.send({ responseCode: 201, msg: 'Please provide hotel id' });
-    //     }
+        if (!req.body.hotel_id) {
+            return res.send({ responseCode: 201, msg: 'Please provide hotel id' });
+        }
 
-    //     var CheckHotelStatus = await Hotel.destroyOne({ id: req.body.hotel_id });
+        var CheckHotelStatus = await Hotel.destroyOne({ id: req.body.hotel_id });
 
-    //     if (CheckHotelStatus) {
-    //         return res.send({ responseCode: 200, msg: 'Hotel removed successfully' });
-    //     } else {
-    //         return res.send({ responseCode: 201, msg: 'Unable to remove hotel' });
-    //     }
+        if (CheckHotelStatus) {
+            return res.send({ responseCode: 200, msg: 'Hotel removed successfully' });
+        } else {
+            return res.send({ responseCode: 201, msg: 'Unable to remove hotel' });
+        }
 
-    // },
+    },
 
 
     Decline_Hotel_BDE: async (req, res) => {

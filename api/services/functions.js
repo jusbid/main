@@ -472,6 +472,8 @@ module.exports.Get_States = function () {
       { "code": "JH", "name": "Jharkhand" },
       { "code": "KA", "name": "Karnataka" },
       { "code": "KL", "name": "Kerala" },
+      { "code": "LA", "name": "Ladakh" },
+      
       { "code": "LD", "name": "Lakshadweep" },
       { "code": "MP", "name": "Madhya Pradesh" },
       { "code": "MH", "name": "Maharashtra" },
@@ -842,6 +844,7 @@ module.exports.Get_Cities = function () {
     "HP": [
       "Bilaspur",
       "Chamba",
+      "Dharamsala",
       "Hamirpur",
       "Kangra",
       "Kinnaur",
@@ -849,6 +852,7 @@ module.exports.Get_Cities = function () {
       "Lahaul & Spiti",
       "Manali",
       "Mandi",
+      "Mcleodganj",
       "Nahan",
       "Palampur",
       "Shimla",
@@ -1036,6 +1040,10 @@ module.exports.Get_Cities = function () {
       "Vagamon",
       "Vatakara"
     ],
+
+
+    "LA":["Kargil", "Leh"],
+
     "MP": [
       "Alirajpur",
       "Ashok Nagar",

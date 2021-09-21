@@ -77,7 +77,7 @@ module.exports = {
                 let CityCheck = CitiesArr.filter(function (itm) { return itm.city == CityValue; });
                 let index = CitiesArr.findIndex(x => x.city == CityValue);
 
-                sails.log(CityCheck, 'CityCheck');
+                //sails.log(CityCheck, 'CityCheck');
 
                 if (CityCheck.length != 0) {
                     CitiesArr[index].hotels = 1 + CitiesArr[index].hotels;
@@ -287,9 +287,10 @@ module.exports = {
         var Searched_hotels = [];
         var applySort = 'price DESC';
         if (sortBy == 'price DESC' || sortBy == 'price ASC') { applySort = 'rating DESC' } else { applySort = sortBy }
-        Searched_hotels = await Hotel.find({ city: city, is_deleted: false,  status:'Approved' }).sort(applySort).limit(100);
-
+        Searched_hotels = await Hotel.find({ city: city, is_deleted: false,  status:'Approved' }).sort(applySort).limit(500);
+        sails.log(Searched_hotels.length);
         async.forEachOf(Searched_hotels, function (value, i, callback) {
+
             //-------------------------------------- Set Lowest Room Price---------------------------------
             HotelRooms.find({ hotel_id: value.id }).sort('price ASC').exec(function (err, HotelRooms) {
                 if (HotelRooms.length == 0) {
@@ -312,16 +313,15 @@ module.exports = {
             }
 
 
-            if (AmenityFilter && AmenityFilter != '' && AmenityFilter != []) {
+            if (AmenityFilter && AmenityFilter != '' && Array.isArray(AmenityFilter)) {
                 //Filter By Amentity ID-----------------------------------------------------------------------------------------------------
                 Searched_hotels = Searched_hotels.filter(function (hotel_data) {
                     var tempcheck = false;
-                    if (!hotel_data.hotel_amenities) { return false }
+                    if (!hotel_data.hotel_amenities && Array.isArray(hotel_data.hotel_amenities)) { return false }
                     AmenityFilter.forEach((value, index) => {
                         tempcheck = hotel_data.hotel_amenities.includes(value);
                     });
                     return tempcheck;
-
                 });
             }
 
@@ -353,7 +353,6 @@ module.exports = {
                     return 0;
                 });
             }
-
 
             return res.send({ responseCode: 200, msg: 'Hotels Fetched successfully', data: Searched_hotels });
 

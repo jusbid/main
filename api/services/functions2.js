@@ -6,22 +6,6 @@ var CryptoJS = require("crypto-js");
 var fs = require('fs');
 var async = require('async');
 
-// module.exports.RecievePaymentStatus = function (payment_id) {
-
-//     sails.log(payment_id, 'payment_id over fun2');
-
-//     request({
-//         method: 'GET',
-//         url: 'https://rzp_test_SF1Xn1tfhexJK5:71AyCxhqqE0dqgjsInHNxkFu@api.razorpay.com/v1/payments/'+payment_id,
-//     }, function (error, response, body) {
-//         sails.log('Status:', response.statusCode);
-//         sails.log('Headers:', JSON.stringify(response.headers));
-//         sails.log('Response:', body);
-//     });
-
-
-// }
-
 
 module.exports.Reject_Bid = function () {
 

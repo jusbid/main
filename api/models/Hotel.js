@@ -175,6 +175,14 @@ module.exports = {
       type: 'boolean',
       defaultsTo: false
     },
+    is_using_cp:{
+      type: 'boolean',
+      defaultsTo: false
+    },
+    reg_ota: {
+      type: 'json',
+      defaultsTo: []
+    },
     status: {
       type: 'string',
       defaultsTo: 'Processing'
